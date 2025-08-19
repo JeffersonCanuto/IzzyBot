@@ -1,2 +1,2 @@
 # BoChat
-Prototype of a modular chatbot architecture with Router, Agents, Security and Observability
+Prototype of a modular chatbot project with Router, Agents, Security and Observability
