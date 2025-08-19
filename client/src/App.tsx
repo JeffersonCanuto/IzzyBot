@@ -1,9 +1,8 @@
 import React from 'react';
+import ChatPage from '@/pages/ChatPage';
 
 const App:React.FC = () => {
-    return (
-        <div className="text-red-500 text-[29px]">Hi</div>
-    )
+    return <ChatPage />
 }
 
 export default App;
