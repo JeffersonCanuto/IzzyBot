@@ -1,3 +1,12 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+body {
+    background-color: #f3f4f6;
+}
+
+@keyframes typing {
+    from { width: 0; }
+    to { width: 52ch; }
+}
