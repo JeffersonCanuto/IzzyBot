@@ -1,6 +1,6 @@
-## Welcome to IzziBot!
+## Welcome to IzzyBot!
 
-IzziBot is a prototype of a modular chatbot project using Router, Agents, Security and Observability.
+IzzyBot is a prototype of a modular chatbot project using Router, Agents, Security and Observability.
 
 
 ### 🛠️ Technologies
