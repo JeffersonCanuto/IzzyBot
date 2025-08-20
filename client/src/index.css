@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global background color */
+body {
+  background-color: #f3f4f6;
+}
+
+/* User bubble (tail on bottom-right) */
+.user-bubble {
+  position: relative;
+  background-color: #d5f7bb;
+  color: black;
+  border-radius: 12px;
+}
+
+.user-bubble::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 0;
+  height: 0;
+  border-top: 12px solid #d5f7bb;
+  border-left: 12px solid transparent;
+}
+
+/* Agent bubble (tail on bottom-left) */
+.agent-bubble {
+  position: relative;
+  background-color: white;
+  color: black;
+  border-radius: 12px;
+}
+
+.agent-bubble::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 0;
+  border-top: 12px solid #e5e7eb;
+  border-right: 12px solid transparent;
+}
+
+@keyframes typing {
+  from { width: 0; }
+  to { width: 52ch; }
+}
