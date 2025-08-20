@@ -91,7 +91,7 @@ const ConversationList:React.FC<ConversationListProps> = ({
                                         <span className="w-6 h-6 rounded-full mt-2">
                                             <img src={ChatImage} alt="Chat Icon" />
                                         </span>
-                                        <div className="flex flex-col">
+                                        <div className={`flex flex-col ${conv.messages?.length > 0 ? "mt-0" : "mt-2"}`}>
                                             {editingId === conv.id ? (
                                                 <input
                                                     type="text"
@@ -110,17 +110,17 @@ const ConversationList:React.FC<ConversationListProps> = ({
                                                     {labels[conv.id]}
                                                 </span>
                                             )}
-                                            <span className="text-[11px] text-gray-400 ml-3">
-                                                {
-                                                    (conv.messages?.[conv.messages.length - 1]?.text ?? "").length > 13 ?
-                                                       `${(conv.messages?.[conv.messages.length - 1]?.text ?? "").substring(0, 13)}...`
-                                                    :
-                                                        (conv.messages?.[conv.messages.length - 1]?.text ?? "")
-                                                }
-                                            </span>
+                                            {conv.messages?.length > 0 && (
+                                                <span className="text-[11px] text-gray-400 ml-3">
+                                                    {conv.messages[conv.messages.length - 1].text.length > 13
+                                                        ? `${conv.messages[conv.messages.length - 1].text.substring(0, 13)}...`
+                                                        : conv.messages[conv.messages.length - 1].text
+                                                    }
+                                                </span>
+                                            )}
                                         </div>
                                     </div>
-                                    <div className="flex">
+                                    <div className={`flex ${conv.messages?.length > 0 ? "mt-0" : "mt-2"}`}>
                                         <button
                                             onClick={e => {
                                                 e.stopPropagation();
