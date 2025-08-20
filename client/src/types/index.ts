@@ -3,12 +3,11 @@ export interface Message {
     text: string;
     sender: "user" | "agent";
     agent?: "KnowledgeAgent" | "MathAgent";
-    timestamp?: string;
+    createdAt?: string;
 }
 
 export interface Conversation {
     id: string;
     messages: Message[];
     title?: string;
-    createdAt?: Date 
 }
