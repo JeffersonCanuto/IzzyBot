@@ -94,17 +94,19 @@ const ChatPage:React.FC = () => {
 
     return (
         <div className="w-full flex flex-col">
-            <div className="w-[865px] border rounded-md bg-gray-50 border-gray-300 max-w-4xl mx-auto mt-8 py-4 px-4 flex items-center">
-                <img src={IzzyBot} width={70} height={70} alt="IzzyBot" className="ml-5"/>
+            <div className="md:w-[865px] w-full max-w-4xl min-w-[500px] lg:mx-auto md:mx-auto ml-2 border rounded-md bg-gray-50 border-gray-300 mt-8 py-4 px-4 flex md:flex-row flex-col items-center gap-4 x">
+                <img src={IzzyBot} width={50} height={50} alt="IzzyBot" className="sm:ml-5 w-12 h-12 sm:w-[70px] sm:h-[70px]" />
                 <div className="w-full flex justify-center items-center">
-                    <span className="inline-block text-center text-xl font-bold opacity-80
+                    <span className="block text-center sm:text-lg md:text-xl font-bold opacity-80
                         bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600
                         bg-clip-text text-transparent
                         overflow-hidden whitespace-nowrap
-                        animate-[typing_3s_steps(52,end)]">Welcome to IzzyBot — an easy peasy chat-squeezy bot!</span>
+                        animate-[typing_3s_steps(52,end)]">
+                        Welcome to IzzyBot — an easy peasy chat-squeezy bot!
+                    </span>
                 </div>
             </div>
-            <div className="w-full flex max-w-4xl mx-auto px-4">
+            <div className="md:w-[900px] w-full flex flex-col md:flex-row mx-auto px-2 md:px-4 mt-4 gap-3 md:gap-4">
                 <ConversationList
                     conversations={conversations}
                     activeConversationId={activeConversationId}

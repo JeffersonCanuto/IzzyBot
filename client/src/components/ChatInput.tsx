@@ -7,23 +7,22 @@ interface ChatInputProps {
 
 const ChatInput = forwardRef<HTMLInputElement, ChatInputProps>(({ handleSend }, ref) => {
     return (
-        <div className="flex gap-2 mt-2">
+        <div className="flex gap-2 mt-2 w-full min-w-[500px]">
             <input
                 ref={ref}
                 type="text"
-                className="flex-1 font-sans border rounded-md p-2 outline-none focus:border-gray-400"
+                className="flex-1 font-sans border rounded-md p-2 outline-none focus:border-gray-400 w-full"
                 placeholder="Type your message..."
                 onKeyDown={e => {
                     if (e.key === "Enter") {
                         e.preventDefault();
-
                         handleSend();
                     }
                 }}
                 autoFocus
             />
             <button
-                className="bg-green-500 text-white px-3 py-2 rounded-full hover:bg-green-600 hover:scale-105 transition-all duration-200"
+                className="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600 hover:scale-105 transition-all duration-200 w-auto"
                 onClick={handleSend}
             >
                 <IoSend />
