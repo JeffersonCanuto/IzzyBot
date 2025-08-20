@@ -10,8 +10,8 @@ body {
 /* User bubble (tail on bottom-right) */
 .user-bubble {
   position: relative;
-  background-color: #3b82f6;
-  color: white;
+  background-color: #d5f7bb;
+  color: black;
   border-radius: 12px;
 }
 
@@ -22,15 +22,15 @@ body {
   bottom: 0;
   width: 0;
   height: 0;
-  border-top: 12px solid #3b82f6;
+  border-top: 12px solid #d5f7bb;
   border-left: 12px solid transparent;
 }
 
 /* Agent bubble (tail on bottom-left) */
 .agent-bubble {
   position: relative;
-  background-color: #e5e7eb;
-  color: #111827;
+  background-color: white;
+  color: black;
   border-radius: 12px;
 }
 
