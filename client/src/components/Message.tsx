@@ -7,21 +7,27 @@ interface MessageProps {
 
 const Message:React.FC<MessageProps> = ({ message }) => {
     const isUser = message.sender === "user";
-    
+
     return (
         <div
-            className={`p-2 rounded-md max-w-[80%] ${
-                isUser ? "bg-blue-500 text-white self-end" : "bg-gray-200 self-start"
+            className={`relative font-sans p-2 rounded-md max-w-[70%] break-all ${
+                isUser ?
+                    "self-end user-bubble"
+                :
+                    "self-start agent-bubble"
             }`}
         >
             {!isUser && (
                 <div className="text-xs text-gray-500 mb-1">{message.agent}</div>
             )}
-            <span
-                dangerouslySetInnerHTML={{
-                    __html: message.text
-                }}
-            />
+            <div className="inline-flex flex-wrap justify-end items-end gap-3">
+                <span
+                    dangerouslySetInnerHTML={{
+                        __html: message.text
+                    }}
+                />
+                <span className="text-[10px] text-gray-600 mr-1">{message.createdAt}</span>
+            </div>
         </div>
     );
 }
