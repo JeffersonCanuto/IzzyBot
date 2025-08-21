@@ -3,3 +3,8 @@ dist/
 temp/
 **/**/*.log
 config.js
+
+# Environment files
+.env.development
+.env.production
+.env.test
