@@ -2,6 +2,11 @@ version: "3.9"
 
 services:
   izzybot-client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile.test
+    container_name: izzybot-client-test
+    restart: unless-stopped
     ports:
       - "${IZZYBOT_CLIENT_OUTER_PORT_TEST}:${IZZYBOT_CLIENT_INNER_PORT_TEST}"
     env_file:
@@ -9,8 +14,15 @@ services:
       - ./client/.env.test
     environment:
       - NODE_ENV=test
+    networks:
+      - izzybot-network
   
   izzybot-server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.test
+    container_name: izzybot-server-test
+    restart: unless-stopped
     ports:
       - "${IZZYBOT_SERVER_OUTER_PORT_TEST}:${IZZYBOT_SERVER_INNER_PORT_TEST}"
     env_file:
@@ -18,3 +30,10 @@ services:
       - ./server/.env.test
     environment:
       - NODE_ENV=test
+    networks:
+      - izzybot-network
+
+networks:
+  izzybot-network:
+    name: izzybot-test-network
+    driver: bridge
