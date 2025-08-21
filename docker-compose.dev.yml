@@ -1,0 +1,16 @@
+version: "3.9"
+
+services:
+  izzybot-client:
+    env_file:
+      - ./.env
+      - ./client/.env.development
+    environment:
+      - NODE_ENV=development
+  
+  izzybot-server:
+    env_file:
+      - ./.env
+      - ./server/.env.development
+    environment:
+      - NODE_ENV=development

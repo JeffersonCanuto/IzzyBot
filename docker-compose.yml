@@ -1,0 +1,25 @@
+version: "3.9"
+
+services:
+  izzybot-client:
+    build: ./client
+    container_name: izzybot-client
+    restart: unless-stopped
+    ports:
+      - "${IZZYBOT_CLIENT_OUTER_PORT}:${IZZYBOT_CLIENT_INNER_PORT}"
+    volumes:
+      - ./client:/app
+  
+  izzybot-server:
+    build: ./server
+    container_name: izzybot-server
+    restart: unless-stopped
+    ports:
+      - "${IZZYBOT_SERVER_OUTER_PORT}:${IZZYBOT_SERVER_INNER_PORT}"
+    volumes:
+      - ./server:/app
+
+networks:
+  default:
+    name: ${DOCKER_NETWORK}
+    driver: bridge
