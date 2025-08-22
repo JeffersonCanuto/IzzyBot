@@ -8,6 +8,6 @@ import ChatController from '@src/controllers/ChatController';
 const ChatRouter = Router();
 
 // Register API routes
-ChatRouter.post(Paths.Chat.Create, ChatController.create);
+ChatRouter.post(Paths.Chat.Create, ChatController.createPayload);
 
 export default ChatRouter;
