@@ -1,25 +1,6 @@
 version: "3.9"
 
 services:
-  izzybot-client:
-    build:
-      context: ./client
-      dockerfile: Dockerfile.dev
-    container_name: izzybot-client-dev
-    restart: unless-stopped
-    ports:
-      - "${IZZYBOT_CLIENT_OUTER_PORT_DEV}:${IZZYBOT_CLIENT_INNER_PORT_DEV}"
-    volumes:
-      - ./client:/app
-      - /app/node_modules
-    env_file:
-      - ./.env
-      - ./client/.env.development
-    environment:
-      - NODE_ENV=development
-    networks:
-      - izzybot-network
-  
   izzybot-server:
     build:
       context: ./server
@@ -38,6 +19,27 @@ services:
       - NODE_ENV=development
     networks:
       - izzybot-network
+  
+  izzybot-client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile.dev
+    container_name: izzybot-client-dev
+    restart: unless-stopped
+    ports:
+      - "${IZZYBOT_CLIENT_OUTER_PORT_DEV}:${IZZYBOT_CLIENT_INNER_PORT_DEV}"
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    env_file:
+      - ./.env
+      - ./client/.env.development
+    environment:
+      - NODE_ENV=development
+    networks:
+      - izzybot-network
+    depends_on:
+      - izzybot-server
 
 networks:
   izzybot-network:

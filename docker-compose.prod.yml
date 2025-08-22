@@ -1,22 +1,6 @@
 version: "3.9"
 
 services:
-  izzybot-client:
-    build:
-      context: ./client
-      dockerfile: Dockerfile.prod
-    container_name: izzybot-client-prod
-    restart: unless-stopped
-    ports:
-      - "${IZZYBOT_CLIENT_OUTER_PORT_PROD}:${IZZYBOT_CLIENT_INNER_PORT_PROD}"
-    env_file:
-      - ./.env
-      - ./client/.env.production
-    environment:
-      - NODE_ENV=production
-    networks:
-      - izzybot-network
-  
   izzybot-server:
     build:
       context: ./server
@@ -28,6 +12,22 @@ services:
     env_file:
       - ./.env
       - ./server/.env.production
+    environment:
+      - NODE_ENV=production
+    networks:
+      - izzybot-network
+  
+  izzybot-client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile.prod
+    container_name: izzybot-client-prod
+    restart: unless-stopped
+    ports:
+      - "${IZZYBOT_CLIENT_OUTER_PORT_PROD}:${IZZYBOT_CLIENT_INNER_PORT_PROD}"
+    env_file:
+      - ./.env
+      - ./client/.env.production
     environment:
       - NODE_ENV=production
     networks:
