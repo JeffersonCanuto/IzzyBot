@@ -4,8 +4,11 @@ import KnowledgeAgent from "./KnowledgeAgent";
 import { AgentPayload, AgentResponse, AgentWorkflow } from "@src/types/agents";
 import RouterAgentHelpers from "@src/utils/agents";
 
+/*
+ * Agent that receives user message and decides between KnowledgeAgent or MathAgent 
+ */
 class RouterAgent {
-    async handleMessage(payload: AgentPayload):Promise<AgentResponse> {
+    static async handleMessage(payload: AgentPayload):Promise<AgentResponse> {
         const workflow:AgentWorkflow[] = [];
 
         // Choose Agent based on isMathQuery helper
