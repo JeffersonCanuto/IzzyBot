@@ -13,6 +13,9 @@
     "node": ">=16.0.0"
   },
   "dependencies": {
+    "@langchain/community": "^0.3.53",
+    "@langchain/core": "^0.3.72",
+    "@langchain/openai": "^0.6.9",
     "cookie-parser": "^1.4.7",
     "dayjs": "^1.11.13",
     "dotenv": "^17.2.1",
@@ -24,6 +27,7 @@
     "jet-paths": "^1.1.0",
     "jet-validators": "^1.4.3",
     "jsonfile": "^6.2.0",
+    "langchain": "^0.3.31",
     "module-alias": "^2.2.3",
     "morgan": "^1.10.1",
     "openai": "^5.15.0"
