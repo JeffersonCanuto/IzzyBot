@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  izzybot-server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.test
+    container_name: izzybot-server-test
+    env_file:
+      - ./.env
+      - ./server/.env.test
+    environment:
+      - NODE_ENV=test
+    networks:
+      - izzybot-network
+  
+  izzybot-client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile.test
+    container_name: izzybot-client-test
+    env_file:
+      - ./.env
+      - ./client/.env.test
+    environment:
+      - NODE_ENV=test
+    networks:
+      - izzybot-network
+    depends_on:
+      - izzybot-server
+
+networks:
+  izzybot-network:
+    name: izzybot-test-network
+    driver: bridge

@@ -2,7 +2,6 @@
 
 IzzyBot is a prototype of a modular chatbot project using Router, Agents, Security and Observability.
 
-
 ### 🛠️ Technologies
 - **TypeScript:** Language used to ensure static type safety and ease detecting interface-related bugs.
 - **React:** Framework used to build user interfaces (SPAs) using component architecture.

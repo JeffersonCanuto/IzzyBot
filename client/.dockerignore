@@ -1,0 +1,20 @@
+# Dependencies
+node_modules
+*.log
+
+# Build output (will be re-generated inside container)
+dist
+
+# Environment & config
+.env
+.env.* 
+.vscode
+.idea
+
+# OS / Editor junk
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
