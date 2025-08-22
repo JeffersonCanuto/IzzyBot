@@ -1,7 +1,9 @@
 import OpenAI from "openai";
 
+import ENV from '@src/configs/ENV';
+
 const client = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY
+    apiKey: ENV.OpenAiApiKey
 });
 
 class MathAgent {
@@ -23,7 +25,7 @@ class MathAgent {
                 messages: [{ role: "user", content: prompt }],
                 temperature: 0   // Set a deterministic answer
             });
-            
+
             // Extract OpenAI LLM response text
             const answer:(string | undefined) = response.choices[0]?.message?.content?.trim(); 
 
