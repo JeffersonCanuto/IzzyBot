@@ -6,6 +6,9 @@ const client = new OpenAI({
     apiKey: ENV.OpenAiApiKey
 });
 
+/*
+ * LLM Agent used to interpret and answer simple mathematical expressions
+ */
 class MathAgent {
     static async handleMessage(message:string):Promise<string>  {
         try {
@@ -29,12 +32,12 @@ class MathAgent {
             // Extract OpenAI LLM response text
             const answer:(string | undefined) = response.choices[0]?.message?.content?.trim(); 
 
-            if (!answer) return "❌ Could not compute the mathematical expression.";
+            if (!answer) return "I couldn't compute the mathematical expression.";
 
             return answer;
         } catch(error:any) {
             console.error("MathAgent error: ", error);
-            return "❌ Could not compute the mathematical expression.";
+            return "I couldn't compute the mathematical expression.";
         }
     }
 }
