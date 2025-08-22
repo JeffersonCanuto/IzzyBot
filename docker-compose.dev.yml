@@ -11,6 +11,7 @@ services:
       - "${IZZYBOT_CLIENT_OUTER_PORT_DEV}:${IZZYBOT_CLIENT_INNER_PORT_DEV}"
     volumes:
       - ./client:/app
+      - /app/node_modules
     env_file:
       - ./.env
       - ./client/.env.development
@@ -29,6 +30,7 @@ services:
       - "${IZZYBOT_SERVER_OUTER_PORT_DEV}:${IZZYBOT_SERVER_INNER_PORT_DEV}"
     volumes:
       - ./server:/app
+      - /app/node_modules
     env_file:
       - ./.env
       - ./server/.env.development
