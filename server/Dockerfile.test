@@ -13,8 +13,5 @@ RUN npm install
 # Copy all source files
 COPY . .
 
-# Expose inner container port
-EXPOSE 3000
-
-# Command to start the app
-CMD ["npm", "run", "dev"]
+# Command to run tests
+CMD ["npm", "test"]
