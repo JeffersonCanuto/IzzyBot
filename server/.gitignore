@@ -1,10 +1,38 @@
+# =====================
+# Node / TypeScript
+# =====================
 **/node_modules
 dist/
 temp/
+build/
 **/**/*.log
-config.js
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
-# Environment files
+# TypeScript build artifacts
+*.tsbuildinfo
+
+# Environment variables
 .env.development
 .env.production
 .env.test
+
+# =====================
+# Vector Store / Data
+# =====================
+# Keep the data folder in repo, but ignore generated indexes
+data/infinitepay_index/
+
+# (Optional) If there are other indexes in data/
+data/*
+
+# =====================
+# OS / Editor junk
+# =====================
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
