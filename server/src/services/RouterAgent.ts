@@ -17,22 +17,55 @@ class RouterAgent {
 
         // Create workflow from the selected Agent
         workflow.push({ agent: "RouterAgent", decision: chosenAgent });
+        
+        const initialTime = Date.now();
 
-        // Dispatch user message to the selected Agent
-        let message:string;
+        try {
+            // Dispatch user message to the selected Agent and retrieve answer
+            const answer = isMath ?
+                await MathAgent.handleMessage(payload.message)
+            : 
+                await KnowledgeAgent.handleMessage(payload.message);
+            
+            workflow.push({ agent: chosenAgent });
 
-        if (isMath) {
-            message = await MathAgent.handleMessage(payload.message);
-            workflow.push({ agent: "MathAgent" });
-        } else {
-            message = await KnowledgeAgent.handleMessage(payload.message);
-            workflow.push({ agent: "KnowledgeAgent" }); 
-        }
+            console.info(JSON.stringify({
+				utc_timestamp: new Date().toISOString(),
+				level: "INFO",
+				agent: "RouterAgent",
+				event: "handle_user_message",
+				conversation_id: payload.conversation_id,
+                user_id: payload.user_id,
+                decision: chosenAgent,
+                response: answer,
+				execution_time: Date.now() - initialTime
+			}));
 
-        return {
-            response: message,
-            source_agent_response: message,
-            agent_workflow: workflow
+            return {
+                response: answer,
+                source_agent_response: answer,
+                agent_workflow: workflow
+            }
+        } catch(error:any) {
+            workflow.push({ agent: chosenAgent, error: error.message ?? error });
+
+            console.error(JSON.stringify({
+				utc_timestamp: new Date().toISOString(),
+				level: "ERROR",
+				agent: "RouterAgent",
+				event: "handle_user_message",
+                conversation_id: payload.conversation_id,
+                user_id: payload.user_id,
+				message: "Error handling incoming user message",
+				error: error?.message ?? error,
+				execution_time: Date.now() - initialTime
+			}));
+
+            return {
+                response: "Sorry, something went wrong while processing your request",
+                source_agent_response: "",
+                agent_workflow: workflow
+            }
         }
     }
 }
