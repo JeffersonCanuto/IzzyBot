@@ -11,6 +11,7 @@ export interface AgentPayload {
 export interface AgentWorkflow {
     agent: string;
     decision?: string;
+    error?: any;
 }
 
 export interface AgentResponse {
