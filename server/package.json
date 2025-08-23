@@ -5,6 +5,7 @@
     "start": "node dist/index.js",
     "dev": "ts-node-dev --respawn --transpile-only --require tsconfig-paths/register ./src",
     "build": "tsc",
+    "build-infinitepay-index": "ts-node src/scripts/buildInfinitePayIndex.ts",
     "lint": "eslint .",
     "test": "NODE_ENV=test vitest",
     "type-check": "tsc --noEmit"
@@ -22,6 +23,7 @@
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "helmet": "^8.1.0",
+    "hnswlib-node": "^3.0.0",
     "inserturlparams": "^2.0.5",
     "jet-env": "^1.1.4",
     "jet-logger": "^2.0.1",
