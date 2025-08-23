@@ -11,6 +11,8 @@ const client = new OpenAI({
  */
 class MathAgent {
     static async handleMessage(message:string):Promise<string>  {
+        const initialTime = Date.now();
+        
         try {
             // Build prompt message that is gonna be served to the LLM (OpenAI)
             const prompt = `
@@ -32,12 +34,30 @@ class MathAgent {
             // Extract OpenAI LLM response text
             const answer:(string | undefined) = response.choices[0]?.message?.content?.trim(); 
 
-            if (!answer) return "I couldn't compute the mathematical expression.";
+            if (!answer) return "I couldn't compute the mathematical expression";
+
+            console.info(JSON.stringify({
+				utc_timestamp: new Date().toISOString(),
+				level: "INFO",
+				agent: "MathAgent",
+				event: "handle_user_message",
+				response: answer,
+				execution_time: Date.now() - initialTime
+			}));
 
             return answer;
         } catch(error:any) {
-            console.error("MathAgent error: ", error);
-            return "I couldn't compute the mathematical expression.";
+            console.error(JSON.stringify({
+				utc_timestamp: new Date().toISOString(),
+				level: "ERROR",
+				agent: "MathAgent",
+				event: "handle_user_message",
+				message: "Error handling incoming user message",
+				error: error?.message ?? error,
+				execution_time: Date.now() - initialTime
+			}));
+            
+            return "I couldn't compute the mathematical expression";
         }
     }
 }
