@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 
 import ENV from '@src/configs/ENV';
+import { HandleMessageResponse } from "@src/types/agents";
 
 const client = new OpenAI({
     apiKey: ENV.OpenAiApiKey
@@ -10,7 +11,7 @@ const client = new OpenAI({
  * LLM Agent used to interpret and answer simple mathematical expressions
  */
 class MathAgent {
-    static async handleMessage(message:string):Promise<string>  {
+    static async handleMessage(message:string):Promise<HandleMessageResponse> {
         const initialTime = Date.now();
         
         try {
@@ -34,7 +35,12 @@ class MathAgent {
             // Extract OpenAI LLM response text
             const answer:(string | undefined) = response.choices[0]?.message?.content?.trim(); 
 
-            if (!answer) return "I couldn't compute the mathematical expression";
+            if (!answer) {
+                return {
+                    message: "I couldn't compute the mathematical expression",
+                    success: false
+                }
+            }
 
             console.info(JSON.stringify({
 				utc_timestamp: new Date().toISOString(),
@@ -45,7 +51,10 @@ class MathAgent {
 				execution_time: Date.now() - initialTime
 			}));
 
-            return answer;
+            return {
+                message: answer,
+                success: true
+            };
         } catch(error:any) {
             console.error(JSON.stringify({
 				utc_timestamp: new Date().toISOString(),
@@ -56,8 +65,11 @@ class MathAgent {
 				error: error?.message ?? error,
 				execution_time: Date.now() - initialTime
 			}));
-            
-            return "I couldn't compute the mathematical expression";
+
+            return {
+                message: "I couldn't compute the mathematical expression",
+                success: false
+            };
         }
     }
 }
