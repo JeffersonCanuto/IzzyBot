@@ -6,7 +6,8 @@ import { NodeEnvs } from '.';
 const ENV = jetEnv({
   NodeEnv: isEnumVal(NodeEnvs),
   Port: num,
-  OpenAiApiKey: str
+  OpenAiApiKey: str,
+  InfinitePayIndexDir: str
 });
 
 export default ENV;

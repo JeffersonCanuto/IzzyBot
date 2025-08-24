@@ -13,6 +13,9 @@ RUN npm ci
 # Copy all source files
 COPY . .
 
+# Build InfinitePay index during build stage
+RUN npm run build-infinitepay-index
+
 # Build the production version
 RUN npm run build
 

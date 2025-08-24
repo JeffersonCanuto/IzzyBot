@@ -1,8 +1,15 @@
 // RouterAgent helpers
 class RouterAgentHelpers {
     static isMathQuery(message: string):boolean {
-        const hasDigit = /\d/.test(message);
-        const hasOperator = /[+\-*/]/.test(message);
+        // Normalize message to lowercase
+        const lowerMessage = message.toLowerCase();
+
+        // Check for at least one digit
+        const hasDigit = /\d/.test(lowerMessage);
+
+        // Check for common symbols or word-based operators
+        const hasOperator = /[+\-*/^%()]/.test(lowerMessage) ||
+            /\b(times|divided by|plus|minus|mod|power of)\b/.test(lowerMessage);
         
         return hasDigit && hasOperator;
     }

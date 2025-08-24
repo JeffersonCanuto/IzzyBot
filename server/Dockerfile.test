@@ -13,5 +13,8 @@ RUN npm install
 # Copy all source files
 COPY . .
 
+# Conditionally build InfinitePay index 
+RUN [ -d "./data/infinitepay_index" ] || npm run build-infinitepay-index
+
 # Command to run tests
 CMD ["npm", "test"]

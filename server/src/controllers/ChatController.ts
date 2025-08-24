@@ -1,4 +1,4 @@
-import RouterAgent from "@src/services/RouterAgent";
+import RouterAgent from "@src/agents/RouterAgent";
 import HttpStatusCodes from "@src/constants/HttpStatusCodes";
 
 import { IReq, IRes } from "@src/types";
