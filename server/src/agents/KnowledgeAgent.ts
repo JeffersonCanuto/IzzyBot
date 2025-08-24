@@ -32,8 +32,8 @@ class KnowledgeAgent {
 		return `
 			Você é um assistente de suporte da InfinitePay.
 			Responda de forma curta, direta e com base exclusivamente no CONTEXTO fornecido.
-			Se não encontrar informação ou se o CONTEXTO fornecido for insuficiente, responda SEMPRE
-			SOMENTE com a seguinte sentença: I couldn't find an answer in InfinitePay's Help Center articles
+			Se não encontrar informação ou se o CONTEXTO fornecido for insuficiente, responda
+			SOMENTE com a exata sentença: I couldn't find an answer in InfinitePay's Help Center articles
 			É importante destacar que todas as respostas sempre devem ser fornecidas em en-US, nunca em pt-BR.
 
 			### CONTEXTO: ${context}
@@ -78,7 +78,7 @@ class KnowledgeAgent {
 			const llmResponse = await response.invoke(finalPrompt);
 			const answer =
 				(llmResponse?.content as string)?.trim() ||
-				"I couldn't find an answer in InfinitePay's Help Center articles";
+				"I couldn't find an answer in InfinitePay's Help Center articles.";
 			
 			console.info(JSON.stringify({
 				utc_timestamp: new Date().toISOString(),
@@ -105,7 +105,7 @@ class KnowledgeAgent {
 			}));
 
 			return {
-				message: "I couldn't find an answer in InfinitePay's Help Center articles",
+				message: "I couldn't find an answer in InfinitePay's Help Center articles.",
 				success: false
 			}
 		}
