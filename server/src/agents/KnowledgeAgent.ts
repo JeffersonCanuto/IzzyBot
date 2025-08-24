@@ -4,6 +4,7 @@ import { Document } from "@langchain/core/documents";
 import { formatDocumentsAsString } from "langchain/util/document";
 
 import ENV from '@src/configs/ENV';
+import { HandleMessageResponse } from "@src/types/agents";
 
 type SourceItem = { source ?: string; url?: string; title?: string }
 
@@ -30,8 +31,10 @@ class KnowledgeAgent {
 	static buildPrompt(context:string, question:string):string {
 		return `
 			Você é um assistente de suporte da InfinitePay.
-			Responda de forma curta, direta e em en-US com base exclusivamente no CONTEXTO fornecido.
-			Se não houver informação suficiente no CONTEXTO, diga que não encontrou a resposta nos artigos de ajuda da InfinitePay.
+			Responda de forma curta, direta e com base exclusivamente no CONTEXTO fornecido.
+			Se não encontrar informação ou se o CONTEXTO fornecido for insuficiente, responda SEMPRE
+			SOMENTE com a seguinte sentença: I couldn't find an answer in InfinitePay's Help Center articles
+			É importante destacar que todas as respostas sempre devem ser fornecidas em en-US, nunca em pt-BR.
 
 			### CONTEXTO: ${context}
 			### PERGUNTA: ${question}
@@ -53,7 +56,7 @@ class KnowledgeAgent {
 	}
 
 	// Handle incoming user message based on RAG content 
-	static async handleMessage(question:string):Promise<string> {
+	static async handleMessage(question:string):Promise<HandleMessageResponse> {
 		const initialTime = Date.now();
 
 		try {
@@ -86,7 +89,10 @@ class KnowledgeAgent {
 				execution_time: Date.now() - initialTime
 			}));
 
-			return answer;
+			return {
+				message: answer,
+				success: answer !== "I couldn't find an answer in InfinitePay's Help Center articles" ? true : false
+			}
 		} catch(error:any) {
 			console.error(JSON.stringify({
 				utc_timestamp: new Date().toISOString(),
@@ -98,7 +104,10 @@ class KnowledgeAgent {
 				execution_time: Date.now() - initialTime
 			}));
 
-			return "I couldn't find an answer in InfinitePay's Help Center articles";
+			return {
+				message: "I couldn't find an answer in InfinitePay's Help Center articles",
+				success: false
+			}
 		}
 	}
 }
