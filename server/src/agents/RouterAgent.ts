@@ -1,7 +1,12 @@
 import MathAgent from "./MathAgent";
 import KnowledgeAgent from "./KnowledgeAgent";
 
-import { AgentPayload, AgentResponse, AgentWorkflow } from "@src/types/agents";
+import {
+    AgentPayload,
+    AgentResponse,
+    AgentWorkflow,
+    HandleMessageResponse
+} from "@src/types/agents";
 import RouterAgentHelpers from "@src/utils/agents";
 
 /*
@@ -27,6 +32,26 @@ class RouterAgent {
             : 
                 await KnowledgeAgent.handleMessage(payload.message);
             
+            // Add personality to the LLM answer depending on the target Agent
+            let { message, success } = answer as HandleMessageResponse;
+            let messageWithPersonality:string;
+
+            if (isMath) {
+                messageWithPersonality =
+                    success ? 
+                        `The answer is: ${message}. Easy peasy! 😎`
+                    :
+                        `Well, ${message}. I'm sorry! 😔`;
+            } else {
+                messageWithPersonality =
+                    success ?
+                        `Here's what I found in InfinitePay's Help Center articles: ${message}.
+                        I hope this information can help clear things up for you! 😊`
+                    :
+                        `Well, ${message}. I'm sorry! 😔`;
+            }
+
+            // Increment existing workflow based on chosenAgent
             workflow.push({ agent: chosenAgent });
 
             console.info(JSON.stringify({
@@ -37,13 +62,13 @@ class RouterAgent {
 				conversation_id: payload.conversation_id,
                 user_id: payload.user_id,
                 decision: chosenAgent,
-                response: answer,
+                response: messageWithPersonality,
 				execution_time: Date.now() - initialTime
 			}));
 
             return {
-                response: answer,
-                source_agent_response: answer,
+                response: messageWithPersonality,
+                source_agent_response: message,
                 agent_workflow: workflow
             }
         } catch(error:any) {
