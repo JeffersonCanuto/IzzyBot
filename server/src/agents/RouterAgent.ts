@@ -45,8 +45,7 @@ class RouterAgent {
             } else {
                 messageWithPersonality =
                     success ?
-                        `Here's what I found in InfinitePay's Help Center articles: ${message}.
-                        I hope this information can help clear things up for you! 😊`
+                        `Here's what I found in InfinitePay's Help Center articles: ${message} I hope this information can clear things up for you! 😊`
                     :
                         `Well, ${message}. I'm sorry! 😔`;
             }
