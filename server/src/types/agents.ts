@@ -19,3 +19,8 @@ export interface AgentResponse {
     source_agent_response: string;
     agent_workflow: AgentWorkflow[];
 }
+
+export interface HandleMessageResponse {
+    message: string;
+    success: boolean;
+}
