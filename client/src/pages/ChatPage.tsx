@@ -22,17 +22,7 @@ import { sanitizeInput, getOrCreateUserId } from "@/utils/helpers";
 import IzzyBot from "@/assets/izzybot.png";
 
 const ChatPage:React.FC = () => {
-    const [ conversations, setConversations ] = useState<ConversationType[]>([
-        {
-            id: crypto.randomUUID(),
-            messages: [{
-                id: crypto.randomUUID(),
-                text: "Hey, I'm IzzyBot. How can I help you? 😊",
-                sender: "agent",
-                createdAt: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
-            }]
-        }
-    ]);
+    const [ conversations, setConversations ] = useState<ConversationType[]>([]);
 
     const [ activeConversationId, setActiveConversationId ] = useState<string | null>(conversations[0]?.id);
     const [ isLoadingAnswer, setIsLoadingAnswer ] = useState<boolean>(false);
@@ -42,6 +32,49 @@ const ChatPage:React.FC = () => {
     const previousConversationId = useRef<string | null>(null);
 
     const activeConversation = conversations.find(conv => conv.id === activeConversationId);
+
+    // Load conversations from Redis on mount
+    useEffect(() => {
+        (async function loadUserConversations() {
+            const userId = getOrCreateUserId();
+            const data = await ApiRequests.fetchConversations(userId);
+
+            console.log("Jefferson");
+            console.log(JSON.stringify(data?.conversations));
+
+            if (!data?.conversations || data.conversations.length === 0) {
+                const initialMessageConversation:ConversationType = {
+                    id: crypto.randomUUID(),
+                    messages: [
+                        {
+                            id: crypto.randomUUID(),
+                            text: "Hey, I'm IzzyBot. How can I help you? 😊",
+                            sender: "agent",
+                            createdAt: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
+                        }
+                    ]
+                };
+
+                setConversations([initialMessageConversation]);
+                setActiveConversationId(initialMessageConversation.id);
+                return;
+            }
+            
+            // Map Redis cached conversations to client state
+            const mappedConversations: ConversationType[] = data.conversations.map(conv => ({
+                id: conv.conversation_id,
+                messages: conv.messages.map(m => ({
+                    id: crypto.randomUUID(),
+                    text: m.message ?? m.response ?? "",
+                    sender: m.message ? "user" : "agent",
+                    createdAt: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
+                }))
+            }));
+
+            setConversations(mappedConversations);
+            setActiveConversationId(mappedConversations[0].id);
+        })();
+    }, []);
 
     /*
      * Save current input value for previous conversation and reset input value
@@ -139,7 +172,7 @@ const ChatPage:React.FC = () => {
                 console.error("No answer received from server");
                 return;
             }
-            
+
             // Create bot message from the received API response
             const botMessage:MessageType = {
                 id: crypto.randomUUID(),
