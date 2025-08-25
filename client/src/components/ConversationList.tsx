@@ -40,7 +40,7 @@ const ConversationList:React.FC<ConversationListProps> = ({
             id: crypto.randomUUID(),
             messages: [{
                 id: crypto.randomUUID(),
-                text: "Hey, I'm IzzyBot. How can I help you?",
+                text: "Hey, I'm IzzyBot. How can I help you? 😊",
                 sender: "agent",
                 createdAt: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
             }]
@@ -53,16 +53,21 @@ const ConversationList:React.FC<ConversationListProps> = ({
     const handleDeleteConversation = useCallback((id:string) => {
         const updatedConversationList = conversations.filter(conv => conv.id !== id);
         setConversations(updatedConversationList);
-        setActiveConversationId(null);
+        setActiveConversationId(updatedConversationList.length
+            ?
+                (updatedConversationList[updatedConversationList.length - 1]).id
+            :
+                null
+        );
     }, [conversations]);
 
     // Update conversation labels with default or chosen text
     useEffect(() => {
         setLabels(prev => {
             const updated: Record<string, string> = { ...prev };
-            conversations.forEach((conv, ind) => {
+            conversations.forEach(conv => {
                 if (!updated[conv.id]) {
-                    updated[conv.id] = `ChatBot (${ind + 1})`;
+                    updated[conv.id] = `IzzyBot`;
                 }
             });
             return updated;
@@ -113,9 +118,11 @@ const ConversationList:React.FC<ConversationListProps> = ({
                                         )}
                                         {conv.messages?.length > 0 && (
                                             <span className="text-[11px] text-gray-400 ml-3">
-                                                {conv.messages[conv.messages.length - 1].text.length > 13
-                                                    ? `${conv.messages[conv.messages.length - 1].text.substring(0, 13)}...`
-                                                    : conv.messages[conv.messages.length - 1].text
+                                                {Array.from(conv.messages[conv.messages.length - 1].text).length > 13
+                                                    ?
+                                                        Array.from(conv.messages[conv.messages.length - 1].text).slice(0, 13).join('') + "..."
+                                                    :
+                                                        conv.messages[conv.messages.length - 1].text
                                                 }
                                             </span>
                                         )}
