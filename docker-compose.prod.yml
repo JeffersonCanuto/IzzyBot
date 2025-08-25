@@ -1,6 +1,17 @@
 version: "3.9"
 
 services:
+  redis:
+    image: redis:latest
+    container_name: izzybot-redis-prod
+    restart: unless-stopped
+    ports:
+      - "${IZZYBOT_REDIS_OUTER_PORT_PROD}:${IZZYBOT_REDIS_INNER_PORT_PROD}"
+    volumes:
+      - redis-data-prod:/data
+    networks:
+      - izzybot-network
+  
   izzybot-server:
     build:
       context: ./server
@@ -16,6 +27,8 @@ services:
       - NODE_ENV=production
     networks:
       - izzybot-network
+    depends_on:
+      - redis
   
   izzybot-client:
     build:
@@ -32,8 +45,13 @@ services:
       - NODE_ENV=production
     networks:
       - izzybot-network
+    depends_on:
+      - izzybot-server
 
 networks:
   izzybot-network:
     name: izzybot-prod-network
     driver: bridge
+
+volumes:
+  redis-data-prod:
