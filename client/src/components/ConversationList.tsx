@@ -32,14 +32,14 @@ const ConversationList:React.FC<ConversationListProps> = ({
         setEditingId(null), []);
     const handleLabelApplyChange = useCallback((id:string, value:string) =>
         setLabels(prevLabel => ({...prevLabel, [id]: value})), []);
-    
+
     // Add new conversation to the conversation list
     const handleAddNewConversation = useCallback(() => {
         const newConversation:ConversationType = {
             id: crypto.randomUUID(),
             messages: [{
                 id: crypto.randomUUID(),
-                text: "Hey, I'm IzzyBot. How can I help you today?",
+                text: "Hey, I'm IzzyBot. How can I help you?",
                 sender: "agent",
                 createdAt: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
             }]
