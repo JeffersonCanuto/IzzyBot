@@ -7,7 +7,8 @@ const ENV = jetEnv({
   NodeEnv: isEnumVal(NodeEnvs),
   Port: num,
   OpenAiApiKey: str,
-  InfinitePayIndexDir: str
+  InfinitePayIndexDir: str,
+  RedisUrl: str
 });
 
 export default ENV;
