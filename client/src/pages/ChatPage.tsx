@@ -135,6 +135,11 @@ const ChatPage:React.FC = () => {
                 conversation_id: activeConversationId ?? conversationId
             });
 
+            if (!answer) {
+                console.error("No answer received from server");
+                return;
+            }
+            
             // Create bot message from the received API response
             const botMessage:MessageType = {
                 id: crypto.randomUUID(),
