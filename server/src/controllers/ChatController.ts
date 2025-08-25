@@ -2,7 +2,7 @@ import RouterAgent from "@src/agents/RouterAgent";
 import HttpStatusCodes from "@src/constants/HttpStatusCodes";
 
 import { IReq, IRes } from "@src/types";
-import { AgentPayload } from "@src/types/agents";
+import { UserPayload } from "@src/types/agents";
 
 /**
  * Receives client payload and forwards it to RouterAgent
@@ -10,7 +10,7 @@ import { AgentPayload } from "@src/types/agents";
 class ChatController {
 	static async createPayload(req:IReq, res:IRes) {
 		try {
-			const payload = req.body as unknown as AgentPayload;
+			const payload = req.body as unknown as UserPayload;
 
 			// Validate received client payload
 			if (!payload.message || !payload.user_id || !payload.conversation_id) {

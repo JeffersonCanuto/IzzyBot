@@ -2,7 +2,7 @@
  * Typing structure for chatbot Agents
  */
 
-export interface AgentPayload {
+export interface UserPayload {
     message: string;
     user_id: string;
     conversation_id: string;
