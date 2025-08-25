@@ -1,4 +1,5 @@
 import express, { Request, Response, NextFunction } from 'express';
+import cors from 'cors';
 
 import ChatRoutes from '@src/routes/ChatRoute';
 
@@ -7,6 +8,13 @@ import HttpStatusCodes from '@src/constants/HttpStatusCodes';
 import { RouteError } from '@src/utils/route-errors';
 
 const app = express();
+
+// CORS middleware
+app.use(cors({
+  origin: "http://localhost:5173",
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  credentials: true
+}));
 
 // Basic middleware
 app.use(express.json());
