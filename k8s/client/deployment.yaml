@@ -1,24 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: frontend
+  name: client
   labels:
-    app: frontend
+    app: client
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: frontend
+      app: client
   template:
     metadata:
       labels:
-        app: frontend
+        app: client
     spec:
       containers:
-        - name: frontend
+        - name: client
           image: localhost:5000/client:prod
           ports:
             - containerPort: 5173
           envFrom:
             - configMapRef:
-                name: frontend-env
+                name: client-env
