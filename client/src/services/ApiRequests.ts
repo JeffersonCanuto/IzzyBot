@@ -19,7 +19,7 @@ interface ConversationsResponse {
 }
 
 class ApiRequests {
-    static readonly host = import.meta.env.VITE_API_URL;
+    static readonly host = import.meta.env.VITE_API_HOST;
     static readonly port = import.meta.env.VITE_API_PORT;
 
     static async sendMessageToServer(payload: SendMessagePayload):Promise<AnswerType | null> {
@@ -45,7 +45,7 @@ class ApiRequests {
     static async fetchConversations(userId:string):Promise<ConversationsResponse | null> {
         try {
             const response = await fetch(`http://${this.host}:${this.port}/chat/conversations?user_id=${userId}`);
-            
+
             if (!response.ok) {
                 throw new Error(`Failed to fetch conversations: ${response.status} ${response.statusText}`);
             }
