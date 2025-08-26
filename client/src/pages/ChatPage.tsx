@@ -38,10 +38,7 @@ const ChatPage:React.FC = () => {
         (async function loadUserConversations() {
             const userId = getOrCreateUserId();
             const data = await ApiRequests.fetchConversations(userId);
-
-            console.log("Jefferson");
-            console.log(JSON.stringify(data?.conversations));
-
+            
             if (!data?.conversations || data.conversations.length === 0) {
                 const initialMessageConversation:ConversationType = {
                     id: crypto.randomUUID(),
