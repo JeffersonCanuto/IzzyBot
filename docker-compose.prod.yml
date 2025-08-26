@@ -12,7 +12,7 @@ services:
     networks:
       - izzybot-network
   
-  izzybot-server:
+  server:
     build:
       context: ./server
       dockerfile: Dockerfile.prod
@@ -30,7 +30,7 @@ services:
     depends_on:
       - redis
   
-  izzybot-client:
+  client:
     build:
       context: ./client
       dockerfile: Dockerfile.prod
