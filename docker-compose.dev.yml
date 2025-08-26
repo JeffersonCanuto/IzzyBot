@@ -5,17 +5,16 @@ services:
     image: redis:latest
     container_name: izzybot-redis-dev
     restart: unless-stopped
-    ports:
-      - "${IZZYBOT_REDIS_OUTER_PORT_DEV}:${IZZYBOT_REDIS_INNER_PORT_DEV}"
     volumes:
       - redis-data-dev:/data
     networks:
-      - izzybot-network
+      - "${DOCKER_NETWORK}"
   
-  izzybot-server:
+  server:
     build:
       context: ./server
       dockerfile: Dockerfile.dev
+    image: izzybot-server-dev
     container_name: izzybot-server-dev
     restart: unless-stopped
     ports:
@@ -25,18 +24,17 @@ services:
       - /app/node_modules
     env_file:
       - ./.env
-      - ./server/.env.development
-    environment:
-      - NODE_ENV=development
+      - ./server/.env.dev
     networks:
-      - izzybot-network
+      - "${DOCKER_NETWORK}"
     depends_on:
       - redis
   
-  izzybot-client:
+  client:
     build:
       context: ./client
       dockerfile: Dockerfile.dev
+    image: izzybot-client-dev
     container_name: izzybot-client-dev
     restart: unless-stopped
     ports:
@@ -46,13 +44,11 @@ services:
       - /app/node_modules
     env_file:
       - ./.env
-      - ./client/.env.development
-    environment:
-      - NODE_ENV=development
+      - ./client/.env.dev
     networks:
-      - izzybot-network
+      - "${DOCKER_NETWORK}"
     depends_on:
-      - izzybot-server
+      - server
 
 networks:
   izzybot-network:

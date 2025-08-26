@@ -5,28 +5,25 @@ services:
     image: redis:latest
     container_name: izzybot-redis-prod
     restart: unless-stopped
-    ports:
-      - "${IZZYBOT_REDIS_OUTER_PORT_PROD}:${IZZYBOT_REDIS_INNER_PORT_PROD}"
     volumes:
       - redis-data-prod:/data
     networks:
-      - izzybot-network
+      - "${DOCKER_NETWORK}"
   
   server:
     build:
       context: ./server
       dockerfile: Dockerfile.prod
+    image: izzybot-server-prod
     container_name: izzybot-server-prod
     restart: unless-stopped
     ports:
       - "${IZZYBOT_SERVER_OUTER_PORT_PROD}:${IZZYBOT_SERVER_INNER_PORT_PROD}"
     env_file:
       - ./.env
-      - ./server/.env.production
-    environment:
-      - NODE_ENV=production
+      - ./server/.env.prod
     networks:
-      - izzybot-network
+      - "${DOCKER_NETWORK}"
     depends_on:
       - redis
   
@@ -34,19 +31,18 @@ services:
     build:
       context: ./client
       dockerfile: Dockerfile.prod
+    image: izzybot-client-prod
     container_name: izzybot-client-prod
     restart: unless-stopped
     ports:
       - "${IZZYBOT_CLIENT_OUTER_PORT_PROD}:${IZZYBOT_CLIENT_INNER_PORT_PROD}"
     env_file:
       - ./.env
-      - ./client/.env.production
-    environment:
-      - NODE_ENV=production
+      - ./client/.env.prod
     networks:
-      - izzybot-network
+      - "${DOCKER_NETWORK}"
     depends_on:
-      - izzybot-server
+      - server
 
 networks:
   izzybot-network:
