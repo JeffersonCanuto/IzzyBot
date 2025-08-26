@@ -1,6 +1,6 @@
 // These need to match the names in ".env" files
 export enum NodeEnvs {
-  Dev = 'development',
+  Dev = 'dev',
   Test = 'test',
-  Production = 'production'
+  Production = 'prod'
 }
