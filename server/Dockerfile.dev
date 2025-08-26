@@ -1,6 +1,9 @@
 # Use Node Alpine for a lightweight image
 FROM node:20-alpine
 
+# Install build dependencies
+RUN apk add --no-cache python3 make g++ git
+
 # Set working directory
 WORKDIR /app
 
@@ -8,7 +11,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install
+RUN npm install --force
 
 # Copy all source files
 COPY . .
