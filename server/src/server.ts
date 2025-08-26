@@ -1,6 +1,8 @@
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 
+import ENV from './configs/ENV';
+
 import ChatRoutes from '@src/routes/ChatRoute';
 
 import Paths from '@src/constants/Paths';
@@ -11,8 +13,8 @@ const app = express();
 
 // CORS middleware
 app.use(cors({
-  origin: "http://localhost:5173",
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  origin: `http://localhost:${ENV.ClientOuterPort}`,
+  methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));
 
