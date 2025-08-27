@@ -18,7 +18,7 @@ import {
  * Agent that receives user message and decides between KnowledgeAgent or MathAgent 
  */
 class RouterAgent {
-    static async handleMessage(payload: UserPayload):Promise<AgentResponse | undefined> {
+    static async handleMessage(payload: UserPayload):Promise<AgentResponse | {}> {
         const workflow:AgentWorkflow[] = [];
         const initialTime = Date.now();
 
@@ -31,7 +31,7 @@ class RouterAgent {
                     payload.conversation_id,
                     payload.user_id
                 );
-                return;
+                return {};
             }
 
             // 1. Store user payload in Redis
