@@ -4,7 +4,7 @@ import HttpStatusCodes from "@src/constants/HttpStatusCodes";
 import { IReq, IRes } from "@src/types";
 import { UserPayload } from "@src/types/agents";
 
-import { getAllUserConversations } from "@src/services/conversation";
+import { getAllUserConversations, deleteUserConversation } from "@src/services/conversation";
 
 /**
  * Receives client payload and forwards it to RouterAgent
@@ -41,7 +41,23 @@ class ChatController {
 			return res.status(HttpStatusCodes.OK).json({ conversations });
 		} catch(error:any) {
 			console.error("Error fetching user conversations: ", error);
-			return res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({ "error": "Failed to fetch user conversations" });
+			return res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({ "error": "Internal Server Error" });
+		}
+	}
+	static async deleteConversation(req:IReq, res:IRes) {
+		try {
+			const { conversation_id, user_id } = req.body;
+
+			if (!conversation_id || !user_id) {
+				return res.status(HttpStatusCodes.BAD_REQUEST).json({ "error": "conversation_id and user_id are required" });
+			}
+
+			await deleteUserConversation(user_id.toString(), conversation_id.toString());
+
+			return res.status(HttpStatusCodes.NO_CONTENT).end();
+		} catch(error:any) {
+			console.error("Error deleting conversation: ", error);
+			return res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({ "error": "Internal Server Error"});
 		}
 	}
 }

@@ -65,8 +65,20 @@ async function getAllUserConversations(user_id:string):Promise<{
     return allConversations;
 }
 
+async function deleteUserConversation(user_id:string, conversation_id:string):Promise<void> {
+    const conversationKey = `conversation:${conversation_id}:${user_id}`;
+    const userConversationKey = `user_conversations:${user_id}`;
+    
+    // Remove conversation ID from user's set
+    await redisClient.sRem(userConversationKey, conversation_id);
+
+    // Delete the conversation list
+    await redisClient.del(conversationKey);
+}
+
 export {
     storeUserPayload,
     storeBotPayload,
-    getAllUserConversations
+    getAllUserConversations,
+    deleteUserConversation
 };

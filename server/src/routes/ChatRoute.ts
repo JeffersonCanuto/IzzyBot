@@ -8,5 +8,6 @@ const ChatRouter = Router();
 // Register API routes
 ChatRouter.post('/', ChatController.createPayload);
 ChatRouter.get('/conversations', ChatController.getConversations);
+ChatRouter.delete('/conversations', ChatController.deleteConversation);
 
 export default ChatRouter;
