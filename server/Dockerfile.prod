@@ -7,6 +7,9 @@ RUN apk add --no-cache python3 make g++ git
 # Set working directory
 WORKDIR /app
 
+# Define NODE_ENV in build time
+ENV NODE_ENV=prod
+
 # Copy package.json and package-lock.json
 COPY package*.json ./
 
