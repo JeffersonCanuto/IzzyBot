@@ -22,4 +22,5 @@ export interface SendMessagePayload {
     message: string;
     user_id: string;
     conversation_id: string | null;
+    initialBotMessage?: boolean;
 }

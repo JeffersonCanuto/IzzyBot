@@ -38,7 +38,7 @@ const ChatPage:React.FC = () => {
         (async function loadUserConversations() {
             const userId = getOrCreateUserId();
             const data = await ApiRequests.fetchConversations(userId);
-            
+
             if (!data?.conversations || data.conversations.length === 0) {
                 const initialMessageConversation:ConversationType = {
                     id: crypto.randomUUID(),
@@ -54,6 +54,19 @@ const ChatPage:React.FC = () => {
 
                 setConversations([initialMessageConversation]);
                 setActiveConversationId(initialMessageConversation.id);
+                
+                // Persist bot greeting message on Redis
+                try {
+                    await ApiRequests.sendMessageToServer({
+                        message: initialMessageConversation.messages[0].text,
+                        user_id: userId,
+                        conversation_id: initialMessageConversation.id,
+                        initialBotMessage: true
+                    });
+                } catch(error:any) {
+                    console.error("Failed to persist greeting message: ", error);
+                }
+
                 return;
             }
             

@@ -6,6 +6,7 @@ export interface UserPayload {
     message: string;
     user_id: string;
     conversation_id: string;
+    initialBotMessage?: boolean;
 }
 
 export interface AgentWorkflow {
