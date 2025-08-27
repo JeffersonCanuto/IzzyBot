@@ -9,6 +9,7 @@ import { MdDelete } from "react-icons/md";
 import ChatImage from "@/assets/chat-icon.svg";
 
 import ApiRequests from "@/services/ApiRequests";
+
 import { getOrCreateUserId } from "@/utils/helpers";
 
 interface ConversationListProps {
@@ -29,11 +30,47 @@ const ConversationList:React.FC<ConversationListProps> = ({
     const [ editingId, setEditingId ] = useState<string | null>(null);
     const [ labels, setLabels ] = useState<Record<string, string>>({});
     
+    const userId = getOrCreateUserId();
+
+    // Load existing labels on mount
+    useEffect(() => {
+        (async() => {
+            try {
+                const data = await ApiRequests.fetchConversationLabels(userId);
+                setLabels(data.labels ?? {});
+            } catch(error:any) {
+                console.error("Failed to fetch conversation labels: ", error);
+            }
+        })();
+    }, []);
+
+    // Sync new conversation with default labels
+    useEffect(() => {
+        setLabels(prev => {
+            const updated: Record<string, string> = { ...prev };
+            conversations.forEach(conv => {
+                if (!updated[conv.id]) {
+                    updated[conv.id] = "IzzyBot";
+                }
+            });
+            return updated;
+        });
+    }, [conversations]);
+
     // Label handler fuctions for edit and change events
     const handleLabelApplyEdit = useCallback((id:string) =>
         setEditingId(id), []);
-    const handleLabelFinishEdit = useCallback(() =>
-        setEditingId(null), []);
+    const handleLabelFinishEdit = useCallback(async() => {
+        if (editingId && labels[editingId]) {
+            try {
+                await ApiRequests.saveConversationLabel(userId, editingId, labels[editingId]);
+            } catch(error:any) {
+                console.error("Failed to save conversation label: ", error);
+            }
+        }
+
+        setEditingId(null);
+    }, [editingId, labels, userId]);
     const handleLabelApplyChange = useCallback((id:string, value:string) =>
         setLabels(prevLabel => ({...prevLabel, [id]: value})), []);
 
@@ -48,62 +85,61 @@ const ConversationList:React.FC<ConversationListProps> = ({
             createdAt: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
         };
 
-        const newConversation:ConversationType = { id: crypto.randomUUID(), messages: [greeting]};
-        setConversations(prevConversations => [ ...prevConversations, newConversation ]);
-        setActiveConversationId(newConversation.id);
+        setConversations(prevConversations => {
+            const newConversation:ConversationType = { id: crypto.randomUUID(), messages: [greeting]};
+            setActiveConversationId(newConversation.id);
 
-        try {
-            await ApiRequests.sendMessageToServer({
-                message: greeting.text,
-                user_id: userId,
-                conversation_id: newConversation.id,
-                initialBotMessage: true
-            });
-        } catch(error:any) {
-            console.error("Failed to persist new conversation greeting: ", error);
+            // Persist default label
+            (async() => {
+                try {
+                    await ApiRequests.sendMessageToServer({
+                        message: greeting.text,
+                        user_id: userId,
+                        conversation_id: newConversation.id,
+                        initialBotMessage: true
+                    });
+                    await ApiRequests.saveConversationLabel(userId, newConversation.id, "IzzyBot");
+                } catch(error:any) {
+                    console.error("Failed to persist new conversation greeting: ", error);
 
-            // Rollback UI in case of failure
-            setConversations(prevConversation => prevConversation.filter(c => c.id !== newConversation.id));
-            setActiveConversationId(conversations.length ? conversations[conversations.length - 1].id : null);
-        }
-    }, [conversations, setConversations, setActiveConversationId]);
+                    // Rollback UI in case of failure
+                    setConversations(prev => prev.filter(c => c.id !== newConversation.id));
+                    setActiveConversationId(prevConversations.length ? prevConversations[prevConversations.length - 1].id : null);
+                }
+            })();
 
+            return [...prevConversations, newConversation];
+        });
+    }, [setConversations, setActiveConversationId]);
+    
     // Delete existing conversation from the conversation list
     const handleDeleteConversation = useCallback(async(id:string) => {
         const userId = getOrCreateUserId();
 
-        const updatedConversationList = conversations.filter(conv => conv.id !== id);
-        setConversations(updatedConversationList);
-        setActiveConversationId(updatedConversationList.length
-            ?
-                (updatedConversationList[updatedConversationList.length - 1]).id
-            :
-                null
-        );
-        
-        try {
-            await ApiRequests.deleteConversation(userId, id);
-        } catch(error:any) {
-            console.error("Failed to delete conversation on the server: ", error);
+        setConversations(prevConversations => {
+            const updatedConversationList = prevConversations.filter(conv => conv.id !== id);
+            
+            setActiveConversationId(updatedConversationList.length
+                ?
+                    updatedConversationList[updatedConversationList.length - 1].id
+                :
+                    null
+            );
 
-            // Rollback UI in case of error
-            setConversations(conversations);
-            setActiveConversationId(conversations.find(c => c.id === id) ? id : conversations.length ? conversations[conversations.length - 1].id : null);
-        }
-    }, [conversations, setConversations, setActiveConversationId]);
+            (async() => {
+                try {
+                    await ApiRequests.deleteConversation(userId, id);
+                } catch(error:any) {
+                    console.error("Failed to delete conversation on the server: ", error);
 
-    // Update conversation labels with default or chosen text
-    useEffect(() => {
-        setLabels(prev => {
-            const updated: Record<string, string> = { ...prev };
-            conversations.forEach(conv => {
-                if (!updated[conv.id]) {
-                    updated[conv.id] = `IzzyBot`;
+                    // Rollback UI in case of error
+                    setConversations(prev => prev);
                 }
-            });
-            return updated;
+            })();
+
+            return updatedConversationList;
         });
-    }, [conversations]);
+    }, [setConversations, setActiveConversationId]);
 
     return (
         <div className="w-full md:min-w-[0px] min-w-[500px] flex flex-col flex-[0_0_30%] border rounded-md bg-gray-50 p-4 overflow-y-auto h-[40vh] md:h-[550px]">

@@ -24,7 +24,7 @@ import IzzyBot from "@/assets/izzybot.png";
 const ChatPage:React.FC = () => {
     const [ conversations, setConversations ] = useState<ConversationType[]>([]);
 
-    const [ activeConversationId, setActiveConversationId ] = useState<string | null>(conversations[0]?.id);
+    const [ activeConversationId, setActiveConversationId ] = useState<string | null>(null);
     const [ isLoadingAnswer, setIsLoadingAnswer ] = useState<boolean>(false);
 
     const inputRef = useRef<HTMLInputElement>(null);

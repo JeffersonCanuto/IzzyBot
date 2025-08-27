@@ -11,7 +11,6 @@ interface ConversationMessage {
 }
 
 interface ConversationsResponse {
-    id: string;
     conversations: {
         conversation_id: string;
         messages:ConversationMessage[]
@@ -22,7 +21,9 @@ class ApiRequests {
     static readonly host = import.meta.env.VITE_API_HOST;
     static readonly port = import.meta.env.VITE_API_PORT;
 
-    static async sendMessageToServer(payload: SendMessagePayload):Promise<AnswerType | null> {
+    static async sendMessageToServer(
+        payload: SendMessagePayload
+    ):Promise<AnswerType | null> {
         try {
             const response = await fetch(`http://${this.host}:${this.port}/chat`, {
                 method: "POST",
@@ -41,7 +42,9 @@ class ApiRequests {
             return null;
         }
     }
-    static async fetchConversations(userId:string):Promise<ConversationsResponse | null> {
+    static async fetchConversations(
+        userId:string
+    ):Promise<ConversationsResponse | null> {
         try {
             const response = await fetch(`http://${this.host}:${this.port}/chat/conversations?user_id=${userId}`);
 
@@ -56,7 +59,10 @@ class ApiRequests {
             return null;
         }
     }
-    static async deleteConversation(userId:string, conversationId:string):Promise<void> {
+    static async deleteConversation(
+        userId:string,
+        conversationId:string
+    ):Promise<void> {
         try {
             const response = await fetch(`http://${this.host}:${this.port}/chat/conversations`, {
                 method: "DELETE",
@@ -73,6 +79,44 @@ class ApiRequests {
         } catch(error:any) {
             console.error("Failed to delete conversation: ", error);
             throw error;
+        }
+    }
+    static async saveConversationLabel(
+        userId:string, 
+        conversationId:string, 
+        label:string
+    ):Promise<void> {
+        try {
+            const response = await fetch(`http://${this.host}:${this.port}/chat/labels`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    user_id: userId,
+                    conversation_id: conversationId,
+                    label
+                })
+            });
+           
+            if (!response.ok) {
+                throw new Error(`Failed to save conversation label: ${response.status} ${response.statusText}`);
+            }
+        } catch(error:any) {
+            console.error("Failed to save conversation label: ", error);
+            throw error;
+        }
+    }
+    static async fetchConversationLabels(userId:string):Promise<{ labels: Record<string, string>}> {
+        try {
+            const response = await fetch(`http://${this.host}:${this.port}/chat/labels?user_id=${userId}`);
+
+            if (!response.ok) {
+                throw new Error(`Failed to fetch conversation labels: ${response.status} ${response.statusText}`);
+            }
+
+            return await response.json();
+        } catch(error:any) {
+            console.error("Failed to fetch conversation labels: ", error);
+            return { labels: {} };
         }
     }
 }
