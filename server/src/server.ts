@@ -14,7 +14,7 @@ const app = express();
 // CORS middleware
 app.use(cors({
   origin: `http://localhost:${ENV.ClientOuterPort}`,
-  methods: ["GET", "POST", "PUT", "DELETE"],
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   credentials: true
 }));
 
