@@ -70,6 +70,8 @@ const ConversationList:React.FC<ConversationListProps> = ({
 
     // Delete existing conversation from the conversation list
     const handleDeleteConversation = useCallback(async(id:string) => {
+        const userId = getOrCreateUserId();
+
         const updatedConversationList = conversations.filter(conv => conv.id !== id);
         setConversations(updatedConversationList);
         setActiveConversationId(updatedConversationList.length
@@ -78,7 +80,17 @@ const ConversationList:React.FC<ConversationListProps> = ({
             :
                 null
         );
-    }, [conversations]);
+        
+        try {
+            await ApiRequests.deleteConversation(userId, id);
+        } catch(error:any) {
+            console.error("Failed to delete conversation on the server: ", error);
+
+            // Rollback UI in case of error
+            setConversations(conversations);
+            setActiveConversationId(conversations.find(c => c.id === id) ? id : conversations.length ? conversations[conversations.length - 1].id : null);
+        }
+    }, [conversations, setConversations, setActiveConversationId]);
 
     // Update conversation labels with default or chosen text
     useEffect(() => {

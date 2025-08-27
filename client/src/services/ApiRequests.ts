@@ -41,7 +41,6 @@ class ApiRequests {
             return null;
         }
     }
-
     static async fetchConversations(userId:string):Promise<ConversationsResponse | null> {
         try {
             const response = await fetch(`http://${this.host}:${this.port}/chat/conversations?user_id=${userId}`);
@@ -55,6 +54,25 @@ class ApiRequests {
         } catch(error:any) {
             console.error("Failed to fetch conversations: ", error);
             return null;
+        }
+    }
+    static async deleteConversation(userId:string, conversationId:string):Promise<void> {
+        try {
+            const response = await fetch(`http://${this.host}:${this.port}/chat/conversations`, {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    conversation_id: conversationId,
+                    user_id: userId
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to delete conversation: ${response.status} ${response.statusText}`);
+            }
+        } catch(error:any) {
+            console.error("Failed to delete conversation: ", error);
+            throw error;
         }
     }
 }
