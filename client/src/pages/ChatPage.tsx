@@ -82,7 +82,7 @@ const ChatPage:React.FC = () => {
             }));
 
             setConversations(mappedConversations);
-            setActiveConversationId(mappedConversations[0].id);
+            setActiveConversationId(mappedConversations[mappedConversations.length - 1].id);
         })();
     }, []);
 
