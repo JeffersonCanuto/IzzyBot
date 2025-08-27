@@ -8,6 +8,9 @@ import { MdDelete } from "react-icons/md";
 
 import ChatImage from "@/assets/chat-icon.svg";
 
+import ApiRequests from "@/services/ApiRequests";
+import { getOrCreateUserId } from "@/utils/helpers";
+
 interface ConversationListProps {
     conversations: ConversationType[];
     activeConversationId: string | null;
@@ -35,22 +38,38 @@ const ConversationList:React.FC<ConversationListProps> = ({
         setLabels(prevLabel => ({...prevLabel, [id]: value})), []);
 
     // Add new conversation to the conversation list
-    const handleAddNewConversation = useCallback(() => {
-        const newConversation:ConversationType = {
+    const handleAddNewConversation = useCallback(async() => {
+        const userId = getOrCreateUserId();
+
+        const greeting = {
             id: crypto.randomUUID(),
-            messages: [{
-                id: crypto.randomUUID(),
-                text: "Hey, I'm IzzyBot. How can I help you? 😊",
-                sender: "agent",
-                createdAt: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
-            }]
+            text: "Hey, I'm IzzyBot. How can I help you? 😊",
+            sender: "agent" as const,
+            createdAt: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
         };
-        setConversations(prevConversations => [...prevConversations, newConversation ]);
+
+        const newConversation:ConversationType = { id: crypto.randomUUID(), messages: [greeting]};
+        setConversations(prevConversations => [ ...prevConversations, newConversation ]);
         setActiveConversationId(newConversation.id);
-    }, [conversations]);
+
+        try {
+            await ApiRequests.sendMessageToServer({
+                message: greeting.text,
+                user_id: userId,
+                conversation_id: newConversation.id,
+                initialBotMessage: true
+            });
+        } catch(error:any) {
+            console.error("Failed to persist new conversation greeting: ", error);
+
+            // Rollback UI in case of failure
+            setConversations(prevConversation => prevConversation.filter(c => c.id !== newConversation.id));
+            setActiveConversationId(conversations.length ? conversations[conversations.length - 1].id : null);
+        }
+    }, [conversations, setConversations, setActiveConversationId]);
 
     // Delete existing conversation from the conversation list
-    const handleDeleteConversation = useCallback((id:string) => {
+    const handleDeleteConversation = useCallback(async(id:string) => {
         const updatedConversationList = conversations.filter(conv => conv.id !== id);
         setConversations(updatedConversationList);
         setActiveConversationId(updatedConversationList.length
