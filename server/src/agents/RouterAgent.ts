@@ -57,7 +57,7 @@ class RouterAgent {
                     Number(answer) || answer === "0." ? 
                         `A resposta é: ${answer} Fácil! 😎`
                     :
-                        `${answer} Me perdoe! 😔`;
+                        `${answer} 😔`;
             } else {
                 const errors = [
                     "Não consegui encontrar uma resposta nos artigos da Central de Ajuda da InfinitePay.",

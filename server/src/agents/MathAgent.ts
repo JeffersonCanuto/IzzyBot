@@ -22,8 +22,9 @@ class MathAgent {
                 de texto curta e com um ponto final, por exemplo: Quanto é 8 + 8? Você deve responser "16.".
                 A expressão matemática pode conter operadores baseados em palavras (mais, menos, etc), e não só operadores literais.
                 Não inclua explicações ou texto extra desnecessário. Somente o que foi requisitado acima.
-                Qualquer erro de cálculo, incluindo divisão por 0, retorne a seguinte mensagem: "Não consegui resolver a expressão matemática.".
-                Qualquer outro erro, retorne a seguinte mensagem: "Erro desconhecido.".
+                Para todo e qualquer erro de cálculo, incluindo divisão por 0, números desconhecidos, números que tendem a infinito,
+                números indefinidos, etc, retorne exatamente: "Não consegui resolver a expressão matemática!".
+                Para outros tipos de erro não relacionados a cálculo, como mencionado acima, retorne exatamente: "Expressão matemática inválida!".
 
                 Mensagem do usuário: ${message}
             `;
@@ -38,7 +39,7 @@ class MathAgent {
             // Extract OpenAI LLM response text
             const answer:(string | undefined) = response.choices[0]?.message?.content?.toString().trim(); 
 
-            if (!answer) return "Ops! Algo deu errado ao processar sua solicitação.";
+            if (!answer) return "Ops... Algo deu errado ao processar sua solicitação!";
 
             console.info(JSON.stringify({
 				utc_timestamp: new Date().toISOString(),
@@ -61,7 +62,7 @@ class MathAgent {
 				execution_time: Date.now() - initialTime
 			}));
 
-            return "Ops! Algo deu errado ao processar sua solicitação.";
+            return "Ops... Algo deu errado ao processar sua solicitação!";
         }
     }
 }
