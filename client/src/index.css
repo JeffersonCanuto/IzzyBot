@@ -41,7 +41,7 @@ body {
   bottom: 0;
   width: 0;
   height: 0;
-  border-top: 12px solid #e5e7eb;
+  border-top: 12px solid white;
   border-right: 12px solid transparent;
 }
 

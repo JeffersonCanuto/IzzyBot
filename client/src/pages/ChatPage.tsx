@@ -1,3 +1,4 @@
+
 import React, { 
     useState, 
     useRef,
@@ -9,18 +10,22 @@ import ChatInput from "@/components/ChatInput";
 import ChatWindow from "@/components/ChatWindow";
 import ConversationList from "@/components/ConversationList";
 
+import ApiRequests from "@/services/ApiRequests";
+
 import type {
     Message as MessageType,
     Conversation as ConversationType
 } from "@/types";
 
-import { sanitizeInput } from "@/utils/helpers";
+import { sanitizeInput, getOrCreateUserId } from "@/utils/helpers";
 
 import IzzyBot from "@/assets/izzybot.png";
 
 const ChatPage:React.FC = () => {
     const [ conversations, setConversations ] = useState<ConversationType[]>([]);
+
     const [ activeConversationId, setActiveConversationId ] = useState<string | null>(null);
+    const [ isLoadingAnswer, setIsLoadingAnswer ] = useState<boolean>(false);
 
     const inputRef = useRef<HTMLInputElement>(null);
     const inputCache = useRef<Record<string, string>>({});
@@ -28,10 +33,63 @@ const ChatPage:React.FC = () => {
 
     const activeConversation = conversations.find(conv => conv.id === activeConversationId);
 
+    // Load conversations from Redis on mount
+    useEffect(() => {
+        (async function loadUserConversations() {
+            const userId = getOrCreateUserId();
+            const data = await ApiRequests.fetchConversations(userId);
+
+            if (!data?.conversations || data.conversations.length === 0) {
+                const initialMessageConversation:ConversationType = {
+                    id: crypto.randomUUID(),
+                    messages: [
+                        {
+                            id: crypto.randomUUID(),
+                            text: "Olá! Sou o IzzyBot. Como posso te ajudar? 😊",
+                            sender: "agent",
+                            createdAt: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
+                        }
+                    ]
+                };
+
+                setConversations([initialMessageConversation]);
+                setActiveConversationId(initialMessageConversation.id);
+                
+                // Persist bot greeting message on Redis
+                try {
+                    await ApiRequests.sendMessageToServer({
+                        message: initialMessageConversation.messages[0].text,
+                        user_id: userId,
+                        conversation_id: initialMessageConversation.id,
+                        initialBotMessage: true
+                    });
+                } catch(error:any) {
+                    console.error("Failed to persist greeting message: ", error);
+                }
+
+                return;
+            }
+            
+            // Map Redis cached conversations to client state
+            const mappedConversations: ConversationType[] = data.conversations.map(conv => ({
+                id: conv.conversation_id,
+                messages: conv.messages.map(m => ({
+                    id: crypto.randomUUID(),
+                    text: m.message ?? m.response ?? "",
+                    sender: m.message ? "user" : "agent",
+                    createdAt: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
+                }))
+            }));
+
+            setConversations(mappedConversations);
+            setActiveConversationId(mappedConversations[mappedConversations.length - 1].id);
+        })();
+    }, []);
+
     /*
-        Save current input value for previous conversation and reset input value
-        for the newly active conversation whenever 'activeConversationId' changes
-    */
+     * Save current input value for previous conversation and reset input value
+     * for the newly active conversation whenever 'activeConversationId' changes 
+     */
     useEffect(() => {
         const input = inputRef.current;
         if (!input) return;
@@ -49,7 +107,7 @@ const ChatPage:React.FC = () => {
         previousConversationId.current = activeConversationId;
     }, [activeConversationId]);
 
-    const handleSend = useCallback(() => {
+    const handleSend = useCallback(async() => {
         // Get input element from refs
         const input = inputRef.current;
         if (!input) return;
@@ -66,6 +124,10 @@ const ChatPage:React.FC = () => {
             createdAt: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
         };
 
+        // Update loading answer state
+        setIsLoadingAnswer(true);
+
+        let conversationId = activeConversationId;
         if (!activeConversationId) {
             // Create new conversation if there is no active conversation
             const newConversation:ConversationType = {
@@ -74,23 +136,103 @@ const ChatPage:React.FC = () => {
             };
             setConversations(prevConversations => [...prevConversations, newConversation ]);
             setActiveConversationId(newConversation.id);
+            conversationId = newConversation.id;
         } else {
             // Add to existing conversation
-            setConversations(prevConversations =>
-                prevConversations.map(conv =>
+            setConversations(prevConversations => {
+                const updated = prevConversations.map(conv =>
                     conv.id === activeConversationId ?
                         { ...conv, messages: [...conv.messages, newMessage] }
                     :
                         conv
-                )
-            );
+                );
+
+                return updated;
+            });
         }
 
         // Clear input value
         input.value = "";
 
-        // TO-DO: Send to backend and add bot response
-    }, [activeConversationId, conversations]);
+        // Add loading answer message
+        const thinkingMessage: MessageType = {
+            id: crypto.randomUUID(),
+            text: "Pensando... 🤔",
+            sender: "agent",
+            createdAt: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
+        };
+
+        setConversations(prev =>
+            prev.map(conv =>
+                conv.id === conversationId
+                    ? { ...conv, messages: [...conv.messages, thinkingMessage] }
+                    : conv
+            )
+        );
+
+        try {
+            // Send user message to the server and await response
+            const answer = await ApiRequests.sendMessageToServer({
+                message: newMessage.text,
+                user_id: getOrCreateUserId(),
+                conversation_id: activeConversationId ?? conversationId
+            });
+
+            if (!answer) {
+                console.error("No answer received from server");
+                return;
+            }
+
+            // Create bot message from the received API response
+            const botMessage:MessageType = {
+                id: crypto.randomUUID(),
+                text: answer.response,
+                sender: "agent",
+                createdAt: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
+            };
+
+            // Remove thinking message and append bot message
+            setConversations(prev =>
+                prev.map(conv =>
+                    conv.id === conversationId
+                        ? {
+                            ...conv,
+                            messages: [
+                                ...conv.messages.filter(m => m.id !== thinkingMessage.id),
+                                botMessage
+                            ]
+                        }
+                        : conv
+                )
+            );
+        } catch(error:any) {
+            console.error("Failed to send message: ", error);
+
+            const errorMessage:MessageType = {
+                id: crypto.randomUUID(),
+                text: "Oops! Message was not sent. Please try again.",
+                sender: "agent",
+                createdAt: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
+            };
+            
+            // Remove thinking message and append bot message
+            setConversations(prev =>
+                prev.map(conv =>
+                    conv.id === conversationId
+                        ? {
+                            ...conv,
+                            messages: [
+                                ...conv.messages.filter(m => m.id !== thinkingMessage.id),
+                                errorMessage
+                            ]
+                        }
+                        : conv
+                )
+            );
+        } finally {
+            setIsLoadingAnswer(false);
+        }
+    }, [activeConversationId]);
 
     return (
         <div className="w-full flex flex-col">
@@ -102,7 +244,7 @@ const ChatPage:React.FC = () => {
                         bg-clip-text text-transparent
                         overflow-hidden whitespace-nowrap
                         animate-[typing_3s_steps(52,end)]">
-                        Welcome to IzzyBot — an easy peasy chat-squeezy bot!
+                        Bem vindo ao IzzyBot!
                     </span>
                 </div>
             </div>
@@ -116,7 +258,7 @@ const ChatPage:React.FC = () => {
                 />
                 <div className="flex-1 flex flex-col">
                     <ChatWindow messages={activeConversation?.messages ?? []} />
-                    <ChatInput ref={inputRef} handleSend={handleSend} />
+                    <ChatInput ref={inputRef} isLoadingAnswer={isLoadingAnswer} handleSend={handleSend} />
                 </div>
             </div>
         </div>

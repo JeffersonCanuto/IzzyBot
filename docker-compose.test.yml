@@ -1,35 +1,59 @@
 version: "3.9"
 
 services:
-  izzybot-server:
+  redis:
+    image: redis:latest
+    container_name: izzybot-redis-test
+    restart: unless-stopped
+    volumes:
+      - redis-data-test:/data
+    networks:
+      - "${DOCKER_NETWORK}"
+  
+  server:
     build:
       context: ./server
       dockerfile: Dockerfile.test
+    image: izzybot-server-test
     container_name: izzybot-server-test
+    restart: unless-stopped
+    ports:
+      - "${IZZYBOT_SERVER_OUTER_PORT_TEST}:${IZZYBOT_SERVER_INNER_PORT_TEST}"
+    volumes:
+      - ./server:/app
+      - /app/node_modules
     env_file:
       - ./.env
       - ./server/.env.test
-    environment:
-      - NODE_ENV=test
     networks:
-      - izzybot-network
+      - "${DOCKER_NETWORK}"
+    depends_on:
+      - redis
   
-  izzybot-client:
+  client:
     build:
       context: ./client
       dockerfile: Dockerfile.test
+    image: izzybot-client-test
     container_name: izzybot-client-test
+    restart: unless-stopped
+    ports:
+      - "${IZZYBOT_CLIENT_OUTER_PORT_TEST}:${IZZYBOT_CLIENT_INNER_PORT_TEST}"
+    volumes:
+      - ./client:/app
+      - /app/node_modules
     env_file:
       - ./.env
       - ./client/.env.test
-    environment:
-      - NODE_ENV=test
     networks:
-      - izzybot-network
+      - "${DOCKER_NETWORK}"
     depends_on:
-      - izzybot-server
+      - server
 
 networks:
   izzybot-network:
     name: izzybot-test-network
     driver: bridge
+
+volumes:
+  redis-data-test:

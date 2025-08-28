@@ -1,4 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
+import cors from 'cors';
+
+import ENV from './configs/ENV';
 
 import ChatRoutes from '@src/routes/ChatRoute';
 
@@ -7,6 +10,13 @@ import HttpStatusCodes from '@src/constants/HttpStatusCodes';
 import { RouteError } from '@src/utils/route-errors';
 
 const app = express();
+
+// CORS middleware
+app.use(cors({
+  origin: `http://localhost:${ENV.ClientOuterPort}`,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+  credentials: true
+}));
 
 // Basic middleware
 app.use(express.json());

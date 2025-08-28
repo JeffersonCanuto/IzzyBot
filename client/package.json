@@ -5,13 +5,14 @@
   "type": "module",
   "scripts": {
     "start": "serve -s dist -l 5173",
-    "dev": "vite",
+    "dev": "vite --host 0.0.0.0",
     "test": "vitest run",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.85.5",
     "dompurify": "^3.2.6",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",

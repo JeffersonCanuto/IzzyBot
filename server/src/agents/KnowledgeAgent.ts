@@ -4,7 +4,6 @@ import { Document } from "@langchain/core/documents";
 import { formatDocumentsAsString } from "langchain/util/document";
 
 import ENV from '@src/configs/ENV';
-import { HandleMessageResponse } from "@src/types/agents";
 
 type SourceItem = { source ?: string; url?: string; title?: string }
 
@@ -32,13 +31,12 @@ class KnowledgeAgent {
 		return `
 			Você é um assistente de suporte da InfinitePay.
 			Responda de forma curta, direta e com base exclusivamente no CONTEXTO fornecido.
-			Se não encontrar informação ou se o CONTEXTO fornecido for insuficiente, responda SEMPRE
-			SOMENTE com a seguinte sentença: I couldn't find an answer in InfinitePay's Help Center articles
-			É importante destacar que todas as respostas sempre devem ser fornecidas em en-US, nunca em pt-BR.
+			Se não encontrar informação ou se o CONTEXTO fornecido for insuficiente, responda
+			SOMENTE com a exata sentença: "Não consegui encontrar uma resposta nos artigos da Central de Ajuda da InfinitePay.".
 
 			### CONTEXTO: ${context}
 			### PERGUNTA: ${question}
-			### RESPOSTA (em en-US):
+			### RESPOSTA:
 		`;
 	}
 
@@ -56,7 +54,7 @@ class KnowledgeAgent {
 	}
 
 	// Handle incoming user message based on RAG content 
-	static async handleMessage(question:string):Promise<HandleMessageResponse> {
+	static async handleMessage(question:string):Promise<string> {
 		const initialTime = Date.now();
 
 		try {
@@ -78,7 +76,7 @@ class KnowledgeAgent {
 			const llmResponse = await response.invoke(finalPrompt);
 			const answer =
 				(llmResponse?.content as string)?.trim() ||
-				"I couldn't find an answer in InfinitePay's Help Center articles";
+				"Não consegui encontrar uma resposta nos artigos da Central de Ajuda da InfinitePay.";
 			
 			console.info(JSON.stringify({
 				utc_timestamp: new Date().toISOString(),
@@ -89,10 +87,7 @@ class KnowledgeAgent {
 				execution_time: Date.now() - initialTime
 			}));
 
-			return {
-				message: answer,
-				success: answer !== "I couldn't find an answer in InfinitePay's Help Center articles" ? true : false
-			}
+			return answer;
 		} catch(error:any) {
 			console.error(JSON.stringify({
 				utc_timestamp: new Date().toISOString(),
@@ -104,10 +99,7 @@ class KnowledgeAgent {
 				execution_time: Date.now() - initialTime
 			}));
 
-			return {
-				message: "I couldn't find an answer in InfinitePay's Help Center articles",
-				success: false
-			}
+			return "Ops! Algo deu errado ao processar sua solicitação.";
 		}
 	}
 }

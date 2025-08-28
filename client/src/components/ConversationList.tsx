@@ -1,4 +1,5 @@
 import React, { Fragment, useState, useCallback, useEffect } from "react";
+
 import type { Conversation as ConversationType } from "@/types";
 
 import { FaPlus } from "react-icons/fa";
@@ -6,6 +7,10 @@ import { FaPencil } from "react-icons/fa6";
 import { MdDelete } from "react-icons/md";
 
 import ChatImage from "@/assets/chat-icon.svg";
+
+import ApiRequests from "@/services/ApiRequests";
+
+import { getOrCreateUserId } from "@/utils/helpers";
 
 interface ConversationListProps {
     conversations: ConversationType[];
@@ -25,48 +30,121 @@ const ConversationList:React.FC<ConversationListProps> = ({
     const [ editingId, setEditingId ] = useState<string | null>(null);
     const [ labels, setLabels ] = useState<Record<string, string>>({});
     
-    // Label handler fuctions for edit and change events
-    const handleLabelApplyEdit = useCallback((id:string) =>
-        setEditingId(id), []);
-    const handleLabelFinishEdit = useCallback(() =>
-        setEditingId(null), []);
-    const handleLabelApplyChange = useCallback((id:string, value:string) =>
-        setLabels(prevLabel => ({...prevLabel, [id]: value})), []);
+    const userId = getOrCreateUserId();
 
-    // Add new conversation to the conversation list
-    const handleAddNewConversation = useCallback(() => {
-        const newConversation:ConversationType = {
-            id: crypto.randomUUID(),
-            messages: []
-        };
-        setConversations(prevConversations => [...prevConversations, newConversation ]);
-        setActiveConversationId(newConversation.id);
-    }, [conversations]);
+    // Load existing labels on mount
+    useEffect(() => {
+        (async() => {
+            try {
+                const data = await ApiRequests.fetchConversationLabels(userId);
+                setLabels(data.labels ?? {});
+            } catch(error:any) {
+                console.error("Failed to fetch conversation labels: ", error);
+            }
+        })();
+    }, []);
 
-    // Delete existing conversation from the conversation list
-    const handleDeleteConversation = useCallback((id:string) => {
-        const updatedConversationList = conversations.filter(conv => conv.id !== id);
-        setConversations(updatedConversationList);
-        setActiveConversationId(null);
-    }, [conversations]);
-
-    // Update conversation labels with default or chosen text
+    // Sync new conversation with default labels
     useEffect(() => {
         setLabels(prev => {
             const updated: Record<string, string> = { ...prev };
-            conversations.forEach((conv, ind) => {
+            conversations.forEach(conv => {
                 if (!updated[conv.id]) {
-                    updated[conv.id] = `ChatBot (${ind + 1})`;
+                    updated[conv.id] = "IzzyBot";
                 }
             });
             return updated;
         });
     }, [conversations]);
 
+    // Label handler fuctions for edit and change events
+    const handleLabelApplyEdit = useCallback((id:string) =>
+        setEditingId(id), []);
+    const handleLabelFinishEdit = useCallback(async() => {
+        if (editingId && labels[editingId]) {
+            try {
+                await ApiRequests.saveConversationLabel(userId, editingId, labels[editingId]);
+            } catch(error:any) {
+                console.error("Failed to save conversation label: ", error);
+            }
+        }
+
+        setEditingId(null);
+    }, [editingId, labels, userId]);
+    const handleLabelApplyChange = useCallback((id:string, value:string) =>
+        setLabels(prevLabel => ({...prevLabel, [id]: value})), []);
+
+    // Add new conversation to the conversation list
+    const handleAddNewConversation = useCallback(async() => {
+        const userId = getOrCreateUserId();
+
+        const greeting = {
+            id: crypto.randomUUID(),
+            text: "Olá! Sou o IzzyBot. Como posso te ajudar? 😊",
+            sender: "agent" as const,
+            createdAt: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
+        };
+
+        setConversations(prevConversations => {
+            const newConversation:ConversationType = { id: crypto.randomUUID(), messages: [greeting]};
+            setActiveConversationId(newConversation.id);
+
+            // Persist default label
+            (async() => {
+                try {
+                    await ApiRequests.sendMessageToServer({
+                        message: greeting.text,
+                        user_id: userId,
+                        conversation_id: newConversation.id,
+                        initialBotMessage: true
+                    });
+                    await ApiRequests.saveConversationLabel(userId, newConversation.id, "IzzyBot");
+                } catch(error:any) {
+                    console.error("Failed to persist new conversation greeting: ", error);
+
+                    // Rollback UI in case of failure
+                    setConversations(prev => prev.filter(c => c.id !== newConversation.id));
+                    setActiveConversationId(prevConversations.length ? prevConversations[prevConversations.length - 1].id : null);
+                }
+            })();
+
+            return [...prevConversations, newConversation];
+        });
+    }, [setConversations, setActiveConversationId]);
+    
+    // Delete existing conversation from the conversation list
+    const handleDeleteConversation = useCallback(async(id:string) => {
+        const userId = getOrCreateUserId();
+
+        setConversations(prevConversations => {
+            const updatedConversationList = prevConversations.filter(conv => conv.id !== id);
+            
+            setActiveConversationId(updatedConversationList.length
+                ?
+                    updatedConversationList[updatedConversationList.length - 1].id
+                :
+                    null
+            );
+
+            (async() => {
+                try {
+                    await ApiRequests.deleteConversation(userId, id);
+                } catch(error:any) {
+                    console.error("Failed to delete conversation on the server: ", error);
+
+                    // Rollback UI in case of error
+                    setConversations(prev => prev);
+                }
+            })();
+
+            return updatedConversationList;
+        });
+    }, [setConversations, setActiveConversationId]);
+
     return (
         <div className="w-full md:min-w-[0px] min-w-[500px] flex flex-col flex-[0_0_30%] border rounded-md bg-gray-50 p-4 overflow-y-auto h-[40vh] md:h-[550px]">
             <div className="flex justify-between border-b pb-3 mb-4">
-                <h2 className="text-lg sm:text-xl font-bold text-gray-500">Conversations</h2>
+                <h2 className="text-lg sm:text-xl font-bold text-gray-500">Mensagens</h2>
                 <button onClick={handleAddNewConversation} className="text-gray-500 mt-1">
                     <FaPlus className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
@@ -107,9 +185,11 @@ const ConversationList:React.FC<ConversationListProps> = ({
                                         )}
                                         {conv.messages?.length > 0 && (
                                             <span className="text-[11px] text-gray-400 ml-3">
-                                                {conv.messages[conv.messages.length - 1].text.length > 13
-                                                    ? `${conv.messages[conv.messages.length - 1].text.substring(0, 13)}...`
-                                                    : conv.messages[conv.messages.length - 1].text
+                                                {Array.from(conv.messages[conv.messages.length - 1].text).length > 13
+                                                    ?
+                                                        Array.from(conv.messages[conv.messages.length - 1].text).slice(0, 13).join('') + "..."
+                                                    :
+                                                        conv.messages[conv.messages.length - 1].text
                                                 }
                                             </span>
                                         )}

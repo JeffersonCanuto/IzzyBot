@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "start": "node dist/index.js",
-    "dev": "ts-node-dev --respawn --transpile-only --require tsconfig-paths/register ./src",
+    "dev": "NODE_ENV=dev ts-node-dev --respawn --transpile-only --require tsconfig-paths/register ./src",
     "build": "tsc",
     "build-infinitepay-index": "ts-node src/scripts/buildInfinitePayIndex.ts",
     "lint": "eslint .",
@@ -19,6 +19,7 @@
     "@langchain/openai": "^0.6.9",
     "cheerio": "^1.1.2",
     "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
     "dayjs": "^1.11.13",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
@@ -34,7 +35,8 @@
     "langchain": "^0.3.31",
     "module-alias": "^2.2.3",
     "morgan": "^1.10.1",
-    "openai": "^5.15.0"
+    "openai": "^5.15.0",
+    "redis": "^5.8.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",
@@ -42,6 +44,7 @@
     "@stylistic/eslint-plugin-ts": "^4.4.1",
     "@swc/core": "^1.13.4",
     "@types/cookie-parser": "^1.4.9",
+    "@types/cors": "^2.8.19",
     "@types/find": "^0.2.4",
     "@types/fs-extra": "^11.0.4",
     "@types/jsdom": "^21.1.7",
