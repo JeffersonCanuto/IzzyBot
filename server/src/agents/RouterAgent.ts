@@ -54,7 +54,7 @@ class RouterAgent {
             let messageWithPersonality:string;
             if (isMath) {
                 messageWithPersonality =
-                    Number(answer) || answer === "0." ? 
+                    Number(answer.replace(/\.$/, '')) || answer === "0." ? 
                         `A resposta é: ${answer} Fácil! 😎`
                     :
                         `${answer} 😔`;
@@ -95,7 +95,7 @@ class RouterAgent {
                 response: messageWithPersonality,
 				execution_time_ms: Date.now() - initialTime
 			}));
-
+            
             return {
                 response: messageWithPersonality,
                 source_agent_response: answer,
