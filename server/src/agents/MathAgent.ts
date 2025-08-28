@@ -1,7 +1,6 @@
 import OpenAI from "openai";
 
 import ENV from '@src/configs/ENV';
-import { HandleMessageResponse } from "@src/types/agents";
 
 const client = new OpenAI({
     apiKey: ENV.OpenAiApiKey
@@ -11,18 +10,22 @@ const client = new OpenAI({
  * LLM Agent used to interpret and answer simple mathematical expressions
  */
 class MathAgent {
-    static async handleMessage(message:string):Promise<HandleMessageResponse> {
+    static async handleMessage(message:string):Promise<string> {
         const initialTime = Date.now();
         
         try {
             // Build prompt message that is gonna be served to the LLM (OpenAI)
             const prompt = `
-                You are a calculator.
-                The user will provide a mathematical expression.
-                Your task is to calculate it and return ONLY the result as a short text message.
-                Do not include explanations or extra unnecessary text, other than it was required above.
+                Você é uma calculadora.
+                O usuário irá te fornecer uma equação matemática.
+                Sua tarefa é realizar o cálculo e retornar apenas o resultado como uma mensagem
+                de texto curta e com um ponto final, por exemplo: Quanto é 8 + 8? Você deve responser "16.".
+                A expressão matemática pode conter operadores baseados em palavras (mais, menos, etc), e não só operadores literais.
+                Não inclua explicações ou texto extra desnecessário. Somente o que foi requisitado acima.
+                Qualquer erro de cálculo, incluindo divisão por 0, retorne a seguinte mensagem: "Não consegui resolver a expressão matemática.".
+                Qualquer outro erro, retorne a seguinte mensagem: "Erro desconhecido.".
 
-                User message: ${message}
+                Mensagem do usuário: ${message}
             `;
 
             // Serve prompt including user message to OpenAPI
@@ -33,14 +36,9 @@ class MathAgent {
             });
 
             // Extract OpenAI LLM response text
-            const answer:(string | undefined) = response.choices[0]?.message?.content?.trim(); 
+            const answer:(string | undefined) = response.choices[0]?.message?.content?.toString().trim(); 
 
-            if (!answer) {
-                return {
-                    message: "I couldn't compute the mathematical expression",
-                    success: false
-                }
-            }
+            if (!answer) return "Ops! Algo deu errado ao processar sua solicitação.";
 
             console.info(JSON.stringify({
 				utc_timestamp: new Date().toISOString(),
@@ -51,10 +49,7 @@ class MathAgent {
 				execution_time: Date.now() - initialTime
 			}));
 
-            return {
-                message: answer,
-                success: true
-            };
+            return answer;
         } catch(error:any) {
             console.error(JSON.stringify({
 				utc_timestamp: new Date().toISOString(),
@@ -66,10 +61,7 @@ class MathAgent {
 				execution_time: Date.now() - initialTime
 			}));
 
-            return {
-                message: "I couldn't compute the mathematical expression",
-                success: false
-            };
+            return "Ops! Algo deu errado ao processar sua solicitação.";
         }
     }
 }

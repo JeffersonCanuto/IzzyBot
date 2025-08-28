@@ -4,8 +4,7 @@ import KnowledgeAgent from "./KnowledgeAgent";
 import {
     UserPayload,
     AgentResponse,
-    AgentWorkflow,
-    HandleMessageResponse
+    AgentWorkflow
 } from "@src/types/agents";
 import RouterAgentHelpers from "@src/utils/agents";
 
@@ -23,6 +22,7 @@ class RouterAgent {
         const initialTime = Date.now();
 
         try {
+            // 1. Store initial bot message
             if (payload.initialBotMessage) {
                 await storeBotPayload(
                     payload.message,
@@ -34,47 +34,50 @@ class RouterAgent {
                 return {};
             }
 
-            // 1. Store user payload in Redis
+            // 2. Store user payload in Redis
             await storeUserPayload(payload.message, payload.conversation_id, payload.user_id);
 
-            // 2. Decide which Agent to use based on isMathQuery helper
+            // 3. Decide which Agent to use based on isMathQuery helper
             const isMath = RouterAgentHelpers.isMathQuery(payload.message);
             const chosenAgent = isMath ? "MathAgent" : "KnowledgeAgent";
 
-            // 3. Record RouterAgent's decision in workflow
+            // 4. Record RouterAgent's decision in workflow
             workflow.push({ agent: "RouterAgent", decision: chosenAgent });
 
-            // 4. Call the chosen Agent with user message and retrieve answer
+            // 5. Call the chosen Agent with user message and retrieve answer
             const answer = isMath ?
                 await MathAgent.handleMessage(payload.message)
             : 
                 await KnowledgeAgent.handleMessage(payload.message);
             
-            let { message, success } = answer as HandleMessageResponse;
-
-            // 5. Add personality to the LLM answer depending on the chosen Agent
+            // 6. Add personality to the LLM answer depending on the chosen Agent
             let messageWithPersonality:string;
             if (isMath) {
                 messageWithPersonality =
-                    success ? 
-                        `The answer is: ${message}. Easy peasy! 😎`
+                    Number(answer) || answer === "0." ? 
+                        `A resposta é: ${answer} Fácil! 😎`
                     :
-                        `Well, ${message}. I'm sorry! 😔`;
+                        `${answer} Me perdoe! 😔`;
             } else {
+                const errors = [
+                    "Não consegui encontrar uma resposta nos artigos da Central de Ajuda da InfinitePay.",
+                    "Ops! Algo deu errado ao processar sua solicitação."
+                ];
+
                 messageWithPersonality =
-                    success ?
-                        `Here's what I found in InfinitePay's Help Center articles: ${message} I hope this information can clear things up for you! 😊`
+                    !(errors.includes(answer)) ?
+                        `Aqui está o que encontrei nos artigos da Central de Ajuda da InfinitePay: ${answer} Espero ter sido útil! 😊`
                     :
-                        `Well, ${message}. I'm sorry! 😔`;
+                        `${answer} Me perdoe! 😔`;
             }
 
-            // 6. Record the Agent that processed the message in workflow
+            // 7. Record the Agent that processed the message in workflow
             workflow.push({ agent: chosenAgent });
 
-            // 7. Store bot payload in Redis
+            // 8. Store bot payload in Redis
             await storeBotPayload(
                 messageWithPersonality,
-                message,
+                answer,
                 workflow,
                 payload.conversation_id,
                 payload.user_id
@@ -94,7 +97,7 @@ class RouterAgent {
 
             return {
                 response: messageWithPersonality,
-                source_agent_response: message,
+                source_agent_response: answer,
                 agent_workflow: workflow
             }
         } catch(error:any) {
@@ -113,7 +116,7 @@ class RouterAgent {
 			}));
 
             return {
-                response: "Sorry, something went wrong while processing your request",
+                response: "Ops! Algo deu errado ao processar sua solicitação. Tente novamente",
                 source_agent_response: "",
                 agent_workflow: workflow
             }

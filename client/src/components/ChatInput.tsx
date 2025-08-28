@@ -13,7 +13,7 @@ const ChatInput = forwardRef<HTMLInputElement, ChatInputProps>(({ isLoadingAnswe
                 ref={ref}
                 type="text"
                 className="flex-1 font-sans border rounded-md p-2 outline-none focus:border-gray-400 w-full"
-                placeholder="Type your message..."
+                placeholder="Escreva sua mensagem..."
                 onKeyDown={e => {
                     if (e.key === "Enter") {
                         e.preventDefault();

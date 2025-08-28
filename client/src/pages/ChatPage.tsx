@@ -45,7 +45,7 @@ const ChatPage:React.FC = () => {
                     messages: [
                         {
                             id: crypto.randomUUID(),
-                            text: "Hey, I'm IzzyBot. How can I help you? 😊",
+                            text: "Olá! Sou o IzzyBot. Como posso te ajudar? 😊",
                             sender: "agent",
                             createdAt: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
                         }
@@ -157,7 +157,7 @@ const ChatPage:React.FC = () => {
         // Add loading answer message
         const thinkingMessage: MessageType = {
             id: crypto.randomUUID(),
-            text: "Thinking... 🤔",
+            text: "Pensando... 🤔",
             sender: "agent",
             createdAt: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
         };
@@ -244,7 +244,7 @@ const ChatPage:React.FC = () => {
                         bg-clip-text text-transparent
                         overflow-hidden whitespace-nowrap
                         animate-[typing_3s_steps(52,end)]">
-                        Hi, there. Welcome to IzzyBot!
+                        Bem vindo ao IzzyBot!
                     </span>
                 </div>
             </div>

@@ -9,7 +9,7 @@ class RouterAgentHelpers {
 
         // Check for common symbols or word-based operators
         const hasOperator = /[+\-*/^%()]/.test(lowerMessage) ||
-            /\b(times|divided by|plus|minus|mod|power of)\b/.test(lowerMessage);
+            /\b(mais|menos|vezes|multiplicado por|dividido por|mod|elevado a)\b/.test(lowerMessage);
         
         return hasDigit && hasOperator;
     }

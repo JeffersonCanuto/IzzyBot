@@ -80,7 +80,7 @@ const ConversationList:React.FC<ConversationListProps> = ({
 
         const greeting = {
             id: crypto.randomUUID(),
-            text: "Hey, I'm IzzyBot. How can I help you? 😊",
+            text: "Olá! Sou o IzzyBot. Como posso te ajudar? 😊",
             sender: "agent" as const,
             createdAt: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
         };
@@ -144,7 +144,7 @@ const ConversationList:React.FC<ConversationListProps> = ({
     return (
         <div className="w-full md:min-w-[0px] min-w-[500px] flex flex-col flex-[0_0_30%] border rounded-md bg-gray-50 p-4 overflow-y-auto h-[40vh] md:h-[550px]">
             <div className="flex justify-between border-b pb-3 mb-4">
-                <h2 className="text-lg sm:text-xl font-bold text-gray-500">Conversations</h2>
+                <h2 className="text-lg sm:text-xl font-bold text-gray-500">Mensagens</h2>
                 <button onClick={handleAddNewConversation} className="text-gray-500 mt-1">
                     <FaPlus className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
