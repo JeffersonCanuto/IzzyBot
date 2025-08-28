@@ -13,7 +13,7 @@ const app = express();
 
 // CORS middleware
 app.use(cors({
-  origin: `http://localhost:${ENV.ClientOuterPort}`,
+  origin: `http://${ENV.ApplicationHost ?? "localhost"}:${ENV.ClientOuterPort}`,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   credentials: true
 }));
