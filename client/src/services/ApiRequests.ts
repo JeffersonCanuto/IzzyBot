@@ -25,7 +25,7 @@ class ApiRequests {
         payload: SendMessagePayload
     ):Promise<AnswerType | null> {
         try {
-            const response = await fetch(`http://${this.host}:${this.port}/chat`, {
+            const response = await fetch(`https://${this.host}:${this.port}/chat`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
@@ -46,7 +46,7 @@ class ApiRequests {
         userId:string
     ):Promise<ConversationsResponse | null> {
         try {
-            const response = await fetch(`http://${this.host}:${this.port}/chat/conversations?user_id=${userId}`);
+            const response = await fetch(`https://${this.host}:${this.port}/chat/conversations?user_id=${userId}`);
 
             if (!response.ok) {
                 throw new Error(`Failed to fetch conversations: ${response.status} ${response.statusText}`);
@@ -64,7 +64,7 @@ class ApiRequests {
         conversationId:string
     ):Promise<void> {
         try {
-            const response = await fetch(`http://${this.host}:${this.port}/chat/conversations`, {
+            const response = await fetch(`https://${this.host}:${this.port}/chat/conversations`, {
                 method: "DELETE",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -87,7 +87,7 @@ class ApiRequests {
         label:string
     ):Promise<void> {
         try {
-            const response = await fetch(`http://${this.host}:${this.port}/chat/labels`, {
+            const response = await fetch(`https://${this.host}:${this.port}/chat/labels`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -107,7 +107,7 @@ class ApiRequests {
     }
     static async fetchConversationLabels(userId:string):Promise<{ labels: Record<string, string>}> {
         try {
-            const response = await fetch(`http://${this.host}:${this.port}/chat/labels?user_id=${userId}`);
+            const response = await fetch(`https://${this.host}:${this.port}/chat/labels?user_id=${userId}`);
 
             if (!response.ok) {
                 throw new Error(`Failed to fetch conversation labels: ${response.status} ${response.statusText}`);
