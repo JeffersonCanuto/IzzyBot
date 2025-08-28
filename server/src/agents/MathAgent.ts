@@ -46,8 +46,9 @@ class MathAgent {
 				level: "INFO",
 				agent: "MathAgent",
 				event: "handle_user_message",
+                message,
 				response: answer,
-				execution_time: Date.now() - initialTime
+				execution_time_ms: Date.now() - initialTime
 			}));
 
             return answer;
@@ -58,8 +59,8 @@ class MathAgent {
 				agent: "MathAgent",
 				event: "handle_user_message",
 				message: "Error handling incoming user message",
-				error: error?.message ?? error,
-				execution_time: Date.now() - initialTime
+				response: error?.message ?? error,
+				execution_time_ms: Date.now() - initialTime
 			}));
 
             return "Ops... Algo deu errado ao processar sua solicitação!";

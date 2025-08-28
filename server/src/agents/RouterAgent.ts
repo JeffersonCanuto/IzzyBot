@@ -54,7 +54,7 @@ class RouterAgent {
             let messageWithPersonality:string;
             if (isMath) {
                 messageWithPersonality =
-                    Number(answer) || answer === "0." ? 
+                    Number(answer.replace(/\.$/, '')) || answer === "0." ? 
                         `A resposta é: ${answer} Fácil! 😎`
                     :
                         `${answer} 😔`;
@@ -82,7 +82,7 @@ class RouterAgent {
                 payload.conversation_id,
                 payload.user_id
             );
-
+            
             console.info(JSON.stringify({
 				utc_timestamp: new Date().toISOString(),
 				level: "INFO",
@@ -91,10 +91,11 @@ class RouterAgent {
 				conversation_id: payload.conversation_id,
                 user_id: payload.user_id,
                 decision: chosenAgent,
+                message: payload.message,
                 response: messageWithPersonality,
-				execution_time: Date.now() - initialTime
+				execution_time_ms: Date.now() - initialTime
 			}));
-
+            
             return {
                 response: messageWithPersonality,
                 source_agent_response: answer,
@@ -111,8 +112,8 @@ class RouterAgent {
                 conversation_id: payload.conversation_id,
                 user_id: payload.user_id,
 				message: "Error on handling incoming user message",
-				error: error?.message ?? error,
-				execution_time: Date.now() - initialTime
+				response: error?.message ?? error,
+				execution_time_ms: Date.now() - initialTime
 			}));
 
             return {
