@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: server-config
+data:
+  CLIENT_OUTER_PORT: "8080"
+  SERVER_INNER_PORT: "3000"
+  APPLICATION_HOST: "localhost"
+  REDIS_URL: "redis://redis:6379"
+  INFINITE_PAY_INDEX_DIR: "data/infinitepay_index"

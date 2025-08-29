@@ -1,14 +1,11 @@
-# Stage 1: Build the app
-FROM node:20-alpine AS builder
+# Use Node Alpine for a lightweight image
+FROM node:20-alpine
 
 # Install build dependencies
 RUN apk add --no-cache python3 make g++ git
 
 # Set working directory
 WORKDIR /app
-
-# Define NODE_ENV in build time
-ENV NODE_ENV=prod
 
 # Copy package.json and package-lock.json
 COPY package*.json ./
@@ -19,25 +16,8 @@ RUN npm install --force
 # Copy all source files
 COPY . .
 
-# Build InfinitePay index during build stage
-RUN npm run build-infinitepay-index
-
-# Build the production version
-RUN npm run build
-
-# Stage 2: Serve the app
-FROM node:20-alpine
-
-# Set working directory
-WORKDIR /app
-
-# Copy the build, node_modules and package.json
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/dist ./dist
-
 # Expose inner container port
 EXPOSE 3000
 
-# Command to serve the app
-CMD ["npm", "start"]
+# Command to start the app
+CMD ["sh", "-c", "npm run build-infinitepay-index && npm start"]

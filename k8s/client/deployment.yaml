@@ -16,9 +16,9 @@ spec:
     spec:
       containers:
         - name: client
-          image: localhost:5000/client:prod
+          image: client:prod
           ports:
             - containerPort: 5173
           envFrom:
             - configMapRef:
-                name: client-env
+                name: client-config

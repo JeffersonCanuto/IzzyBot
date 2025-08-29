@@ -4,9 +4,9 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "start": "serve -s dist -l 5173",
-    "dev": "vite --host 0.0.0.0",
-    "test": "vitest run",
+    "start": "vite --mode prod --host 0.0.0.0",
+    "dev": "vite --mode dev --host 0.0.0.0",
+    "test": "vitest run --mode test",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
