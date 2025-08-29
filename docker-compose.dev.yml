@@ -22,7 +22,7 @@ services:
     volumes:
       - ./server:/app
       - /app/node_modules
-      - ./certs:/app/certs:ro
+      - ./server/certs:/app/certs:ro
     env_file:
       - ./.env
       - ./server/.env.dev
@@ -43,7 +43,7 @@ services:
     volumes:
       - ./client:/app
       - /app/node_modules
-      - ./certs:/app/certs:ro
+      - ./client/certs:/app/certs:ro
     env_file:
       - ./.env
       - ./client/.env.dev
