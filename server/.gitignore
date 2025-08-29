@@ -2,6 +2,7 @@
 # Node / TypeScript
 # =====================
 **/node_modules
+certs
 dist/
 temp/
 build/
