@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: client-ingress
+  name: server-ingress
 spec:
   rules:
     - host: localhost
@@ -11,6 +11,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: client
+                name: server
                 port:
-                  number: 8080
+                  number: 5000

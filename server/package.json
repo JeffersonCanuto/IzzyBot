@@ -2,7 +2,7 @@
   "name": "izzyapi",
   "version": "0.0.0",
   "scripts": {
-    "start": "node dist/index.js",
+    "start": "NODE_ENV=prod ts-node-dev --respawn --transpile-only --require tsconfig-paths/register ./src",
     "dev": "NODE_ENV=dev ts-node-dev --respawn --transpile-only --require tsconfig-paths/register ./src",
     "build": "tsc",
     "build-infinitepay-index": "ts-node src/scripts/buildInfinitePayIndex.ts",

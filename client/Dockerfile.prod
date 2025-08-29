@@ -1,5 +1,5 @@
-# Stage 1: Build the app
-FROM node:20-alpine AS builder
+# Use Node Alpine for a lightweight image
+FROM node:20-alpine
 
 # Set working directory
 WORKDIR /app
@@ -8,27 +8,13 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci
+RUN npm install
 
 # Copy all source files
 COPY . .
 
-# Build the production version
-RUN npm run build
-
-# Stage 2: Serve the app
-FROM node:20-alpine
-
-# Set working directory
-WORKDIR /app
-
-# Copy the build, node_modules and package.json
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package*.json ./
-
 # Expose inner container port
 EXPOSE 5173
 
-# Command to serve the app
+# Command to start the app
 CMD ["npm", "start"]

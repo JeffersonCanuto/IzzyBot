@@ -19,6 +19,10 @@ services:
     restart: unless-stopped
     ports:
       - "${IZZYBOT_SERVER_OUTER_PORT_PROD}:${IZZYBOT_SERVER_INNER_PORT_PROD}"
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+      - ./certs:/app/certs:ro
     env_file:
       - ./.env
       - ./server/.env.prod
@@ -36,6 +40,10 @@ services:
     restart: unless-stopped
     ports:
       - "${IZZYBOT_CLIENT_OUTER_PORT_PROD}:${IZZYBOT_CLIENT_INNER_PORT_PROD}"
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+      - ./certs:/app/certs:ro
     env_file:
       - ./.env
       - ./client/.env.prod

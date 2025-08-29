@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server
+  labels:
+    app: server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: server
+  template:
+    metadata:
+      labels:
+        app: server
+    spec:
+      containers:
+        - name: server
+          image: server:prod
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: server-config
+            - secretRef:
+                name: server-secrets

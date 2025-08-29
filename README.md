@@ -2,11 +2,11 @@
 
 A modular chatbot system built by using **Node.js (Express) + TypeScript** for the Backend and **React + TypeScript** for the Frontend. It integrates **LLM (OpenAI gpt-4o-mini) + RAG (LangChain)** for intelligent responses with robust **Input Sanitization**, **Error Handling** and **Advanced Caching (Redis)**. It is designed with Security, Observability and Scalability in mind and supports local or cloud deployment via **Docker** and **Kubernetes**.
 
-> _This README provides a technical explanation on project aspects such as Architecture, Configuration, Build & Run, Workflow, Security, Agents (RouterAgent, MathAgent and KnowledgeAgent) with their expected input and output in JSON format, and ultimately Ports & Endpoints map._
+> _This README provides technical explanation on project aspects such as Architecture, Configuration, Build & Run, Workflow, Security, Agents (RouterAgent, MathAgent and KnowledgeAgent) with their expected input and output in JSON format, and ultimately Ports & Endpoints map._
 
 ---
 
-## ⚡ Quick Start (Local Deployment)
+## ⚡ Quick Start (Local Deployment using Docker Compose)
 
 1) **Clone the repository**
 ~~~bash
@@ -14,9 +14,9 @@ git clone https://github.com/JeffersonCanuto/IzzyBot.git
 cd IzzyBot/
 ~~~
 
-2) **Create the following file in the root directory (IzzyBot/):  `.env`.**
+2) **Create the following file in the root folter (IzzyBot/):  `.env`.**
 
-> Use **.env.example** file as reference.
+> **Use **.env.example** file as reference**.
 
 ~~~bash
 # ============================================
@@ -24,24 +24,56 @@ cd IzzyBot/
 # ============================================
 
 # Client and Server ports for prod environment
-IZZYBOT_CLIENT_INNER_PORT_PROD=5173
-IZZYBOT_CLIENT_OUTER_PORT_PROD=8080
-IZZYBOT_SERVER_INNER_PORT_PROD=3000
-IZZYBOT_SERVER_OUTER_PORT_PROD=3000
+IZZYBOT_CLIENT_INNER_PORT_PROD=
+IZZYBOT_CLIENT_OUTER_PORT_PROD=
+IZZYBOT_SERVER_INNER_PORT_PROD=
+IZZYBOT_SERVER_OUTER_PORT_PROD=
 
 # Client and Server ports for dev environment
-IZZYBOT_CLIENT_INNER_PORT_DEV=5173
-IZZYBOT_CLIENT_OUTER_PORT_DEV=8081
-IZZYBOT_SERVER_INNER_PORT_DEV=3000
-IZZYBOT_SERVER_OUTER_PORT_DEV=5000
+IZZYBOT_CLIENT_INNER_PORT_DEV=
+IZZYBOT_CLIENT_OUTER_PORT_DEV=
+IZZYBOT_SERVER_INNER_PORT_DEV=
+IZZYBOT_SERVER_OUTER_PORT_DEV=
+
+# Client and Server ports for test environment
+IZZYBOT_CLIENT_INNER_PORT_TEST=
+IZZYBOT_CLIENT_OUTER_PORT_TEST=
+IZZYBOT_SERVER_INNER_PORT_TEST=
+IZZYBOT_SERVER_OUTER_PORT_TEST=
 
 # Optional parameters
-DOCKER_NETWORK=izzybot-network
+DOCKER_NETWORK=
 ~~~
 
-3) **Create the following files in the client folder: `.env.development`, `.env.production` and `.env.test`.**
+> **Make sure to set the ports and network properly, as they're gonna be used later to deploy the Docker containers**.
 
-> Use **.env.development.example**, **.env.production.example** and **.env.test.example** files as references.
+3) **Create the following folder inside the root directory (IzzyBot/): `certs/`.**
+
+> **The steps here are to create `certs/` folder inside `IzzyBot/` directory**. 
+
+- Create `certs` folder:
+
+~~~bash
+mkdir certs
+~~~
+
+- Go into certs folder:
+
+~~~bash
+cd certs
+~~~
+
+- Generate self-signed certificate and key:
+
+~~~bash
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout key.pem -out cert.pem -subj "/C=US/ST=State/L=City/O=Organization/OU=OrgUnit/CN=localhost"
+~~~
+
+> **This way, both cert.pem and key.pem will be placed inside `IzzyBot/certs`**. 
+
+4) **Create the following files inside the client directory (IzzyBot/client/): `.env.dev`, `.env.prod` and `.env.test`.**
+
+> **Use **.env.dev.example**, **.env.prod.example** and **.env.test.example** files as references**.
 
 ~~~bash
 # =======================
@@ -49,13 +81,15 @@ DOCKER_NETWORK=izzybot-network
 # =======================
 
 # API connection settings
-VITE_API_URL=localhost
-VITE_API_PORT=3000
+VITE_API_HOST=localhost
+VITE_API_PORT=5001
 ~~~
 
-4) **Create the following files in the server folder: `.env.development`, `.env.production` and `.env.test`.**
+> **Make sure to set VITE_API_HOST (e.g, localhost) and VITE_API_PORT (e.g, same value as IZZYBOT_SERVER_OUTER_PORT_... from Step 2) properly**.
 
-> Use **.env.development.example**, **.env.production.example** and **.env.test.example** files as references.
+5) **Create the following files inside the server directory (IzzyBot/server/): `.env.dev`, `.env.prod` and `.env.test`.**
+
+> Use **.env.dev.example**, **.env.prod.example** and **.env.test.example** files as references.
 
 ~~~bash
 # =======================
@@ -63,65 +97,80 @@ VITE_API_PORT=3000
 # =======================
 
 # Server settings
-PORT=3000
-HOST=localhost
-INFINITE_PAY_INDEX_DIR=data/infinitepay_index
+CLIENT_OUTER_PORT=
+SERVER_INNER_PORT=
+APPLICATION_HOST=
+REDIS_URL=
+INFINITE_PAY_INDEX_DIR=
 
 # Outer API Keys
-OPEN_AI_API_KEY=sk-proj-... (CREATE AND USE YOUR OWN OPENAI API KEY)
+OPEN_AI_API_KEY=
 ~~~
 
 > Create an OpenAI API Key: https://platform.openai.com/settings/organization/api-keys
 > 
 > Add credit in order to use it: https://platform.openai.com/settings/organization/billing/overview
 
-5) **Run with Docker Compose**
+6) **Run with Docker Compose**
 
 - First off, make sure you have both [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) installed.
 
 - Then, you can spin up the system in different environments: Development, Production or Test.
 
-- For Development, just run:
+- For Development — from the root directory, just run:
   
 ~~~bash
 docker-compose -f docker-compose.dev.yml up -d
 ~~~
 
-- For Production, just run:
+- For Production — from the root directory, just run:
 
 ~~~bash
 docker-compose -f docker-compose.prod.yml up -d
 ~~~
 
-- For Test, just run:
+- For Test — from the root directory, just run:
 
 ~~~bash
 docker-compose -f docker-compose.test.yml up -d
 ~~~
 
-6) **Open the Frontend**
-- Visit: http://localhost:8081 (For Development Environment)
-- Or visit: http://localhost:8080 (For Production Enviroment)
+7) **Open the Frontend**
+- Visit: http://localhost:IZZYBOT_CLIENT_OUTER_PORT_DEV (Dev Environment: Port is defined in IzzyBot/.env - Step 2)
+- Or visit: http://localhost:IZZYBOT_CLIENT_OUTER_PORT_PROD (Prod Environment: Port is defined in IzzyBot/.env - Step 2)
+- Or visit: http://localhost:IZZYBOT_CLIENT_OUTER_PORT_TEST (Test Environment: Port is defined in IzzyBot/.env - Step 2)
 - Start interacting with IzzyBot via chat messages 🎉
 
 > Notes:
 > 
 > **Services (defaults):**
 > 
-> **Backend API** → Development: http://localhost:5000  | Production: http://localhost:3000
+> **Backend API:**
 > 
-> **Frontend UI** → Development: http://localhost:8081 | Production: http://localhost:8080
+>  Dev: http://localhost:IZZYBOT_SERVER_OUTER_PORT_DEV (Dev Environment: Port is defined in IzzyBot/.env - Step 2)
 > 
-> **Redis** → Development: http://localhost:6379 | Production: http://localhost:6379
+>  Prod: http://localhost:IZZYBOT_SERVER_OUTER_PORT_PROD (Prod Environment: Port is defined in IzzyBot/.env - Step 2)
+> 
+>  Test: http://localhost:IZZYBOT_SERVER_OUTER_PORT_TEST (Test Environment: Port is defined in IzzyBot/.env - Step 2)
+> 
+> **Frontend UI:**
+> 
+>  Dev: http://localhost:IZZYBOT_CLIENT_OUTER_PORT_DEV (Dev Environment: Port is defined in IzzyBot/.env - Step 2)
+>  
+>  Prod: http://localhost:IZZYBOT_CLIENT_OUTER_PORT_PROD (Prod Environment: Port is defined in IzzyBot/.env - Step 2)
+>  
+>  Test: http://localhost:IZZYBOT_CLIENT_OUTER_PORT_TEST (Test Environment: Port is defined in IzzyBot/.env - Step 2)
+> 
+> **Redis:** Redis is an internal service used to perform advanced caching (data persistence) and so it should not be publicly accessible.
 
 ---
 
 ## 🧭 Table of Contents
 
-- [Architecture Overview (Router, Agents, Logs, Redis)](#-architecture-overview-router-agents-logs-redis)
+- [Architecture Overview (Router, Agents, Logs, Redis)](#architecture-overview-router-agents-logs-redis)
 - [Running IzzyBot application using Kubernetes (K8s)](#️-running-izzybot-application-using-kubernetes)
 - [Example of Structured Logs for Observability (JSON)](#-example-of-structured-logs-for-observability-json)
-- [Security: Sanitization & Prompt Injection Protection](#-security-sanitization--prompt-injection-protection)
+- [Security (XSS/HTML protection)](#-security-xsshtml-protection)
 - [Ports & Endpoints](#-ports--endpoints)
 - [Future Improvements](#-future-improvements-izzybot-v2)
 
@@ -129,156 +178,229 @@ docker-compose -f docker-compose.test.yml up -d
 
 ## 🏗️ Architecture Overview (Router, Agents, Logs, Redis)
 
-**Core components: Server side**
-- **RouterAgent** → Entry point that implements an internal logic to route each message to the right agent (MathAgent or KnowledgeAgent).
-- **MathAgent** → Handles math queries from common symbols (`+`, `-`, `*`, `/`) or word-based operators (plus, times, divided by, etc).
+**Core components**
+- **RouterAgent** → Entrypoint that implements a RegEx logic to route each message to the right agent (MathAgent or KnowledgeAgent).
+- **MathAgent** → Handles math queries from common symbols (`+`, `-`, `*`, `/`) or word-based operators (mais, menos, vezes, etc).
 - **KnowledgeAgent** → Handles InfinitePay-related user queries based on LLM (OpenAI) + vectorized RAG content that is stored locally.
 - **Logs** → Structured JSON logs created in each step of the user message processing by the Agent for observability purpose (see examples).
-- **Redis** → Caching method used to persist conversations and messages history and display it whenever an user loads the application.
+- **Redis** → Caching method used to persist conversations and messages history and display them whenever IzzyBot application first renders.
 
-**High-Level Flow**
+**High-Level Workflow**
 ~~~mermaid
 flowchart LR
-    User --> Frontend --> RouterAgent
+    User --> Client --> RouterAgent
     RouterAgent -->|Mathematical Query| MathAgent
     RouterAgent -->|InfinitePay Query| KnowledgeAgent
     RouterAgent --> Logs
     RouterAgent --> Redis
 ~~~
 
-**Typical Workflow**
-1. **Frontend** sends `{ message, user_id, conversation_id }` for an **API** endpoint that triggers **RouterAgent**.
-2. **RouterAgent** inspects the message content and chooses to forward it to **MathAgent** or **KnowledgeAgent**.
-3. **MathAgent** generates a prompt message for the LLM (OpenAI) based on the user's mathematical operation input.
-4. **KnowledgeAgent** generates a prompt message for the LLM (OpenAI) based on the user input + vectorized RAG content.
-5. **Backend** returns the LLM (OpenAI) answer for the **Frontend** and emits **JSON logs** in each step for observability purpose.
-6. **Frontend** updates the user interface with the LLM response generated by either MathAgent or KnowledgeAgent.
+**Main Workflow**
+1. **Client** makes a request to an **API** endpoint sending payload as `{ message, user_id, conversation_id }`, which triggers **RouterAgent**.
+2. **RouterAgent** inspects the user's message and uses a RegEx-based rule to decide where to forward it: **MathAgent** or **KnowledgeAgent**.
+3. **MathAgent** generates a prompt message for the LLM (OpenAI) based on the user's math expression input and retrieves the answer.
+4. **KnowledgeAgent** generates a message for the LLM (OpenAI) based on the user input + InfinitePay's RAG content and retrieves the answer.
+5. **RouterAgent** retrieves the response from either **MathAgent** or **KnowledgeAgent**, cache it on Redis along with the user input message.
+6. **API** endpoint returns the **RouterAgent** answer for the **Client** and emits **JSON logs** in each step of the process for observability purpose.
+7. **Client** updates the user interface (ChatPage) with the LLM response generated by **RouterAgent** from **MathAgent** or **KnowledgeAgent**.
 
 ---
 
-## ☸️ Running IzzyBot application using Kubernetes
+## ☸️ Running IzzyBot using Kubernetes
 
-> Assumes you have a kubeconfig pointing to a cluster (kind, minikube, or managed k8s).
+### 1) Install a Kubernetes cluster locally
 
-### 1) Apply Manifests
+- Install kubectl
+
 ~~~bash
-kubectl apply -f k8s/
+curl -LO "https://dl.k8s.io/release/$(curl -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+chmod +x kubectl
+sudo mv kubectl /usr/local/bin/
+kubectl version --client
 ~~~
 
-This typically creates:
-- **Deployments**: `backend`, `frontend`, `redis`
-- **Services**: cluster IPs and/or NodePorts
-- **ConfigMaps/Secrets**: environment & credentials
+- Install minikube
 
-### 2) Check Status
+~~~bash
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+sudo install minikube-linux-amd64 /usr/local/bin/minikube
+minikube version
+~~~
+
+- Start a cluster
+
+~~~bash
+minikube start --driver=docker
+kubectl get nodes
+~~~
+
+- Enable required addons
+
+~~~bash
+minikube addons enable ingress
+~~~
+
+- Run minikube tunnel (IN A SEPARATE TERMINAL)
+
+~~~bash
+minikube tunnel
+~~~
+
+### 2) Build & Run
+
+~~~bash
+# 1) Switch Docker CLI to Minikube's Docker daemon
+eval $(minikube -p minikube docker-env)
+
+# 2) Build Docker images inside Minikube
+docker build -f client/Dockerfile.prod -t client:prod ./client
+docker build -f server/Dockerfile.prod -t server:prod ./server
+
+# 3) Apply Kubernetes manifests in the correct order
+
+# Redis
+kubectl apply -f k8s/redis/pvc.yaml
+kubectl apply -f k8s/redis/service.yaml
+kubectl apply -f k8s/redis/deployment.yaml
+
+# Server
+kubectl apply -f k8s/server/configmap.yaml
+kubectl apply -f k8s/server/secret.yaml
+kubectl apply -f k8s/server/service.yaml
+kubectl apply -f k8s/server/deployment.yaml
+kubectl apply -f k8s/server/ingress.yaml
+
+# Client
+kubectl apply -f k8s/client/configmap.yaml
+kubectl apply -f k8s/client/service.yaml
+kubectl apply -f k8s/client/deployment.yaml
+kubectl apply -f k8s/client/ingress.yaml
+~~~
+
+### 3) Check Status
 ~~~bash
 kubectl get pods
 kubectl get svc
-kubectl logs deploy/backend
+kubectl get ingress
+kubectl logs <pod-name>
 ~~~
-
-### 3) Access the App
-- If using **NodePort**:  
-  Find the NodePort of the frontend service:
-  ~~~bash
-  kubectl get svc frontend -o wide
-  ~~~
-  Then open `http://<node-ip>:<nodeport>`
-
-- If using **Ingress** (recommended):  
-  Point your DNS/hosts to the ingress controller address and open the configured host (e.g., `http://chatbot.local`).
 
 ---
 
 ## 📜 Example of Structured Logs for Observability (JSON)
 
-**Routing Event**
+**RouterAgent**
 ~~~json
 {
-  "timestamp": "2025-08-07T14:32:12Z",
-  "module": "RouterAgent",
-  "event": "agent_routed",
-  "user_id": "client789",
-  "conversation_id": "conv-1234",
-  "target_agent": "MathAgent",
-  "message": "How much is 65 x 3.11?"
+  "utc_timestamp":"2025-08-28T17:34:40.182Z",
+  "level":"INFO",
+  "agent":"RouterAgent",
+  "event":"handle_user_message",
+  "conversation_id":"3f0be6b9-2d83-468f-86c4-196e2f9eb11c",
+  "user_id":"9982d2a2-45be-4be8-a75a-2fdb265b4dca",
+  "decision":"MathAgent",
+  "message":"Quanto é 4 + 4?",
+  "response":"A resposta é: 8. Fácil! 😎",
+  "execution_time_ms":3682
 }
 ~~~
 
-**Knowledge Index Build**
+**MathAgent**
 ~~~json
 {
-  "timestamp": "2025-08-07T14:40:10Z",
-  "module": "buildInfinitePayIndex",
-  "event": "index_built",
-  "indexDir": "server/data/infinitepay_index",
-  "documents_processed": 124
+  "utc_timestamp":"2025-08-28T17:36:42.215Z",
+  "level":"INFO",
+  "agent":"MathAgent",
+  "event":"handle_user_message",
+  "message":"Quanto é 4 + 4?",
+  "response":"8.",
+  "execution_time_ms":1676
 }
 ~~~
 
-**Agent Response**
+**KnowledgeAgent**
 ~~~json
 {
-  "timestamp": "2025-08-07T14:41:05Z",
-  "module": "MathAgent",
-  "event": "agent_response",
-  "conversation_id": "conv-1234",
-  "input": "How much is 65 x 3.11?",
-  "output": "65 × 3.11 = 202.15"
+  "utc_timestamp":"2025-08-28T17:42:07.282Z",
+  "level":"INFO",
+  "agent":"KnowledgeAgent",
+  "event":"handle_user_message",
+  "message":"Qual a taxa da maquininha?",
+  "response":"As taxas da maquininha da InfinitePay começam a partir de 0,75% e o recebimento pode ser feito na hora ou em 1 dia útil.",
+  "execution_time_ms":4834
 }
 ~~~
 
-> All logs are single-line JSON (great for ELK/Datadog). In production, prefer `new Date().toISOString()` (UTC).
+> All logs are single-line JSON — great for log observability tools such as ELK and Datadog.
 
 ---
 
-## 🔒 Security: Sanitization & Prompt Injection Protection
+## 🔒 Security (XSS/HTML protection)
 
-**Input Sanitization**
-- Normalize Unicode (e.g., **NFKC**), trim whitespace, collapse control chars.
-- Escape/strip dangerous characters before logging or templating.
-- Enforce max length to avoid abuse (truncate with notice).
-
-**Prompt Injection Protection**
-- **Heuristics**: Flag phrases like “_ignore previous instructions_”, “_act as system_”, “_reveal system prompt_”.
-- **Allowlist routing**: Only forward to **known agents** with explicit capabilities.
-- **Context scoping**: Agents receive **only** the context they need (no raw system prompts).
-- **Output gating**: Validate agent output against expected schema (e.g., math result must be numeric).
-
-**Operational Safeguards**
-- Rate limiting & basic auth on admin endpoints.
-- Secrets via env vars/Secret manager (never in code).
-- Structured logging (no PII where not needed).
+**Input Sanitization (DOMPurify)**
+- Removes malicious HTML tags (e.g., `<script>`, `<iframe>`)  .
+- Strips dangerous attributes (e.g., `onerror=`, `javascript:` URLs).  
+- Neutralizes DOM clobbering attempts and browser-specific quirks.
+- Ensures clean, safe HTML output for rendering.
 
 ---
 
-## 🔌 Ports & Endpoints
+## 🔌 Service Ports & Endpoints
 
-| Component   | Default Port | Example URL                     | Notes                         |
+> The ports defined below are the default ones. The real ones to access Frontend and Backend services are set in IzzyBot/.env (Step 2).
+
+| Component   | Default Port | Example URL                     |  Notes                         |
 |-------------|--------------|----------------------------------|-------------------------------|
-| Frontend    | 5173         | http://localhost:5173            | Vite dev/served build         |
-| Backend API | 3000         | http://localhost:3000            | `/chat`, `/health`, `/logs`   |
-| Redis       | 6379         | n/a                              | Internal only (no public exp) |
+| Frontend    | 5173         | http://localhost:5173            | Vite dev/served build        |
+| Backend API | 3000         | http://localhost:3000            | `/chat`, `/chat/conversations`, `/chat/labels`   |
+| Redis       | 6379         | N/A                              | Internal only (not publicly accessible) |
 
-**Primary API Example**
+**API Request Example - MathAgent**
 ~~~bash
 # POST /chat
 curl -X POST http://localhost:3000/chat \
   -H "Content-Type: application/json" \
   -d '{
-        "message": "How much is 65 x 3.11?",
-        "user_id": "client789",
-        "conversation_id": "conv-1234"
+        "message": "Quanto é 65 * 3.11?",
+        "user_id": "9982d2a2-45be-4be8-a75a-2fdb265b4dca",
+        "conversation_id": "3f0be6b9-2d83-468f-86c4-196e2f9eb11c"
       }'
 ~~~
 
-**Expected Response (example)**
+**Expected Response**
 ~~~json
 {
-  "conversation_id": "conv-1234",
-  "agent": "MathAgent",
-  "reply": "65 × 3.11 = 202.15",
-  "latency_ms": 42
+  "response": "A resposta é: 202.15. Fácil! 😎",
+  "source_agent_response": "202.15.",
+  "agent_workflow": [
+    { "agent": "RouterAgent", "decision": "MathAgent" },
+    { "agent": "MathAgent" }
+  ]
+}
+~~~
+
+**API Request Example - KnowledgeAgent**
+
+~~~bash
+# POST /chat
+curl -X POST http://localhost:3000/chat \
+  -H "Content-Type: application/json" \
+  -d '{
+        "message": "Qual a taxa da maquininha?",
+        "user_id": "9982d2a2-45be-4be8-a75a-2fdb265b4dca",
+        "conversation_id": "3f0be6b9-2d83-468f-86c4-196e2f9eb11c"
+      }'
+~~~
+
+**Expected Response**
+~~~json
+{
+  "response": "Aqui está o que encontrei nos artigos da Central de Ajuda da InfinitePay: As taxas da maquininha da InfinitePay começam a partir de 0,75% e o recebimento pode ser feito na hora ou em 1 dia útil. Espero ter sido útil! 😊",
+  "source_agent_response": "As taxas da maquininha da InfinitePay começam a partir de 0,75% e o recebimento pode ser feito na hora ou em 1 dia útil.",
+  "agent_workflow": [
+    { "agent": "RouterAgent", "decision": "KnowledgeAgent" },
+    { "agent": "KnowledgeAgent" }
+  ]
 }
 ~~~
 
@@ -286,8 +408,9 @@ curl -X POST http://localhost:3000/chat \
 
 ## 🚀 Future Improvements: IzzyBot V2
 
+- **Responsive Design** - resolve general layout bugs spot on IzzyBot V1 for different screen sizes.
 - **Add Sign-Up and Login Page** — implement authentication and authorization using **JWT Bearer Tokens**.  
 - **Adopt WebSockets over HTTP** — enable real-time communication for smoother chatbot interactions.  
 - **Enhance Scalability** — apply **Design Patterns**, **SOLID Principles** and **Performance Optimization**.  
-- **Increase Test Coverage** — add unit, integration and functional tests (e.g., **Jest**, **React Testing Library**).  
+- **Increase Test Coverage** — add unit and integration/functional tests (e.g., **Jest** and **React Testing Library**).  
 - **Implement CI/CD Pipelines** — automate builds, deployments and tests with **GitHub Actions** or **GitLab CI/CD**.
