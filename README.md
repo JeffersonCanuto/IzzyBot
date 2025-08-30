@@ -81,8 +81,8 @@ openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout key.pem -out cert.pe
 # =======================
 
 # API connection settings
-VITE_API_HOST=localhost
-VITE_API_PORT=5001
+VITE_API_HOST=
+VITE_API_PORT=
 ~~~
 
 > **Make sure to set VITE_API_HOST (e.g, localhost) and VITE_API_PORT (e.g, same value as IZZYBOT_SERVER_OUTER_PORT_... from Step 2) properly**.
